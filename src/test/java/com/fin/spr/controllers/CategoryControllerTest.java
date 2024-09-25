@@ -3,7 +3,6 @@ package com.fin.spr.controllers;
 import com.fin.spr.exceptions.EntityAlreadyExistsException;
 import com.fin.spr.interfaces.ICategoryService;
 import com.fin.spr.models.Category;
-import com.fin.spr.controllers.CategoryController;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -11,7 +10,6 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.ResponseEntity;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 

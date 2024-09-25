@@ -52,7 +52,6 @@ class InMemoryStorageTest {
 
     @Test
     void testDelete() {
-        // Проверка удаления
         storage.create(1, "Entity to be deleted");
 
         boolean deleted = storage.delete(1);
