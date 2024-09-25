@@ -61,7 +61,7 @@ public class CategoryController implements ICategoryController {
     @Override
     public ResponseEntity<Category> createCategory(@RequestBody Category category) {
         try {
-            categoryService.createCategory(category.getId(), category);
+            categoryService.createCategory(category);
             return ResponseEntity.status(201).body(category);
         } catch (EntityAlreadyExistsException e) {
             return ResponseEntity.status(409).body(null);

@@ -44,12 +44,11 @@ public class CategoryService implements ICategoryService {
     /**
      * Creates a new category in the storage.
      *
-     * @param id       the identifier for the new category
      * @param category the {@link Category} entity to be created
      */
     @Override
-    public void createCategory(Integer id, Category category) {
-        categoryStorage.create(id, category);
+    public void createCategory(Category category) {
+        categoryStorage.create(category.getId(), category);
     }
 
     /**

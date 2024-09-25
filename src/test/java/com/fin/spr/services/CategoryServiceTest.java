@@ -55,7 +55,7 @@ class CategoryServiceTest {
     void testCreateCategory() {
         Category category = new Category(1, "Slug 1", "Name 1");
 
-        categoryService.createCategory(1, category);
+        categoryService.createCategory(category);
 
         verify(categoryStorage, times(1)).create(1, category);
     }

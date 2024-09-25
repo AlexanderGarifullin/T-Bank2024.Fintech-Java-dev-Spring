@@ -30,10 +30,9 @@ public interface ICategoryService {
     /**
      * Creates a new category with the specified identifier.
      *
-     * @param id       the identifier for the new category
      * @param category the {@link Category} entity to be created
      */
-    void createCategory(Integer id, Category category);
+    void createCategory(Category category);
 
     /**
      * Updates an existing category identified by its identifier.
