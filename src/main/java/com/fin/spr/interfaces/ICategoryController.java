@@ -14,9 +14,9 @@ public interface ICategoryController {
     /**
      * Retrieves a list of all categories.
      *
-     * @return a {@link ResponseEntity} containing a list of {@link Category} entities
+     * @return a list of {@link Category} entities
      */
-    ResponseEntity<List<Category>> getAllCategories();
+    List<Category> getAllCategories();
 
     /**
      * Retrieves a category by its identifier.

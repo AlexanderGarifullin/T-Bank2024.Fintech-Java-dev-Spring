@@ -6,6 +6,7 @@ import com.fin.spr.interfaces.ICategoryController;
 import com.fin.spr.interfaces.ICategoryService;
 import com.fin.spr.models.Category;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,13 +28,14 @@ public class CategoryController implements ICategoryController {
     /**
      * Retrieves all categories.
      *
-     * @return a ResponseEntity containing a list of all categories and an HTTP status code.
+     * @return a list of all categories and an HTTP status code.
      */
     @GetMapping
     @Override
-    public ResponseEntity<List<Category>> getAllCategories() {
+    @ResponseStatus(HttpStatus.OK)
+    public List<Category> getAllCategories() {
         List<Category> categories = categoryService.getAllCategories();
-        return ResponseEntity.ok(categories);
+        return categories;
     }
 
     /**

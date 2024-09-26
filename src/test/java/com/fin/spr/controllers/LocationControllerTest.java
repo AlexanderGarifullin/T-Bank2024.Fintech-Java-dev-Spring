@@ -36,9 +36,8 @@ class LocationControllerTest {
 
         when(locationService.getAllLocations()).thenReturn(List.of(location1, location2));
 
-        ResponseEntity<List<Location>> response = locationController.getAllLocations();
-        assertThat(response.getStatusCodeValue()).isEqualTo(200);
-        assertThat(response.getBody()).hasSize(2)
+        List<Location> response = locationController.getAllLocations();
+        assertThat(response).hasSize(2)
                 .containsExactly(location1, location2);
     }
 

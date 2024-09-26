@@ -37,9 +37,8 @@ class CategoryControllerTest {
 
         when(categoryService.getAllCategories()).thenReturn(List.of(category1, category2));
 
-        ResponseEntity<List<Category>> response = categoryController.getAllCategories();
-        assertThat(response.getStatusCodeValue()).isEqualTo(200);
-        assertThat(response.getBody()).hasSize(2)
+        List<Category> response = categoryController.getAllCategories();
+        assertThat(response).hasSize(2)
                 .containsExactly(category1, category2);
     }
 

@@ -14,9 +14,9 @@ public interface ILocationController {
     /**
      * Retrieves a list of all locations.
      *
-     * @return a {@link ResponseEntity} containing a list of {@link Location} entities
+     * @return a list of {@link Location} entities
      */
-    ResponseEntity<List<Location>> getAllLocations();
+    List<Location> getAllLocations();
 
     /**
      * Retrieves a location by its unique slug.

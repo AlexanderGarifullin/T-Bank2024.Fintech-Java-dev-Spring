@@ -6,6 +6,7 @@ import com.fin.spr.interfaces.ILocationController;
 import com.fin.spr.interfaces.ILocationService;
 import com.fin.spr.models.Location;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,13 +29,13 @@ public class LocationController implements ILocationController {
     /**
      * Retrieves all locations stored in the system.
      *
-     * @return a {@link ResponseEntity} containing a list of all {@link Location} entities
+     * @return a list of all {@link Location} entities
      */
     @GetMapping
     @Override
-    public ResponseEntity<List<Location>> getAllLocations() {
-        List<Location> locations = locationService.getAllLocations();
-        return ResponseEntity.ok(locations);
+    @ResponseStatus(HttpStatus.OK)
+    public List<Location> getAllLocations() {
+        return locationService.getAllLocations();
     }
 
     /**
