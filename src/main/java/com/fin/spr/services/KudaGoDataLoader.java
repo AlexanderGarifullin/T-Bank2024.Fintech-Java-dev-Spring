@@ -9,17 +9,18 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.client.RestClient;
 
-import java.util.Arrays;
+import java.util.List;
 
 /**
  * The {@code KudaGoDataLoader} class is responsible for initializing data
  * from the KudaGo API into in-memory storage for categories and locations.
  *
  * <p>
- * This class uses the {@link RestTemplate} to make HTTP requests to the KudaGo API
+ * This class uses the {@link RestClient} to make HTTP requests to the KudaGo API
  * and retrieves categories and locations. The retrieved data is stored in
  * {@link InMemoryStorage} for further use in the application.
  * </p>
@@ -47,12 +48,12 @@ import java.util.Arrays;
 @LogExecutionTime
 public class KudaGoDataLoader {
 
-    private static final String CATEGORIES_API_URL = "https://kudago.com/public-api/v1.4/place-categories";
-    private static final String LOCATIONS_API_URL = "https://kudago.com/public-api/v1.4/locations";
+    private static final String CATEGORIES_API_URL = "https://kudago.com/public-api/v1.4/place-categories/";
+    private static final String LOCATIONS_API_URL = "https://kudago.com/public-api/v1.4/locations/";
     private static final Logger logger = LoggerFactory.getLogger(KudaGoDataLoader.class);
 
     @Autowired
-    private RestTemplate restTemplate;
+    private RestClient restClient;
 
     @Autowired
     private InMemoryStorage<Category, Integer> categoryStorage;
@@ -76,16 +77,28 @@ public class KudaGoDataLoader {
     public void initData() {
         logger.info("Starting data initialization from the KudaGo API...");
 
-        Category[] categories = restTemplate.getForObject(CATEGORIES_API_URL, Category[].class);
+        List<Category> categories = restClient.get()
+                .uri(CATEGORIES_API_URL)
+                .retrieve()
+                .body(new ParameterizedTypeReference<>() {});
+
         if (categories != null) {
-            Arrays.stream(categories).forEach(category -> categoryStorage.create(category.getId(), category));
+            categories.forEach(category -> categoryStorage.create(category.getId(), category));
             logger.info("Categories have been successfully initialized.");
+        } else {
+            logger.warn("Received null categories.");
         }
 
-        Location[] locations = restTemplate.getForObject(LOCATIONS_API_URL, Location[].class);
+        List<Location> locations = restClient.get()
+                .uri(LOCATIONS_API_URL)
+                .retrieve()
+                .body(new ParameterizedTypeReference<>() {});
+
         if (locations != null) {
-            Arrays.stream(locations).forEach(location -> locationStorage.create(location.getSlug(), location));
+            locations.forEach(location -> locationStorage.create(location.getSlug(), location));
             logger.info("Locations have been successfully initialized.");
+        } else {
+            logger.warn("Received null locations.");
         }
 
         logger.info("Data initialization completed.");

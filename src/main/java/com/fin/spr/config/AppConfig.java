@@ -2,7 +2,7 @@ package com.fin.spr.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.client.RestClient;
 
 /**
  * The {@code AppConfig} class provides the configuration for the application.
@@ -12,12 +12,12 @@ import org.springframework.web.client.RestTemplate;
 public class AppConfig {
 
     /**
-     * Creates and returns a new instance of {@link RestTemplate}.
+     * Creates and returns a new instance of {@link RestClient}.
      *
-     * @return a {@link RestTemplate} instance used for making HTTP requests
+     * @return a {@link RestClient} instance used for making HTTP requests
      */
     @Bean
-    public RestTemplate restTemplate() {
-        return new RestTemplate();
+    public RestClient restClient() {
+        return  RestClient.create();
     }
 }
