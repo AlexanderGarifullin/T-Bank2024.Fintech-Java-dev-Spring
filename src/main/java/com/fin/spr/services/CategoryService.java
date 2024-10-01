@@ -17,8 +17,22 @@ import java.util.Optional;
 @Service
 public class CategoryService implements ICategoryService {
 
+
+    private final InMemoryStorage<Category, Integer> categoryStorage;
+
+    /**
+     * Service class responsible for managing categories.
+     *
+     * <p>This class uses an in-memory storage mechanism for storing
+     * and retrieving {@link Category} entities. The storage is injected
+     * via constructor dependency injection.</p>
+     *
+     * @param categoryStorage the in-memory storage for {@link Category} entities.
+     */
     @Autowired
-    private InMemoryStorage<Category, Integer> categoryStorage;
+    public CategoryService(InMemoryStorage<Category, Integer> categoryStorage) {
+        this.categoryStorage = categoryStorage;
+    }
 
     /**
      * Retrieves a list of all categories stored in the system.

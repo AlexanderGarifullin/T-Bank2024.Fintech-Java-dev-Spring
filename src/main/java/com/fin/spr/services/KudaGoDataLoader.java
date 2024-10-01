@@ -52,14 +52,30 @@ public class KudaGoDataLoader {
     private static final String LOCATIONS_API_URL = "https://kudago.com/public-api/v1.4/locations/";
     private static final Logger logger = LoggerFactory.getLogger(KudaGoDataLoader.class);
 
-    @Autowired
-    private RestClient restClient;
+    private final RestClient restClient;
 
-    @Autowired
-    private InMemoryStorage<Category, Integer> categoryStorage;
+    private final InMemoryStorage<Category, Integer> categoryStorage;
 
+    private final InMemoryStorage<Location, String> locationStorage;
+
+    /**
+     * Service responsible for loading and initializing data from the KudaGo API.
+     *
+     * <p>This service fetches categories and locations from external APIs and
+     * stores them in memory for further use. It uses {@link RestClient} to make
+     * HTTP requests and two separate in-memory storage components for storing
+     * {@link Category} and {@link Location} entities.</p>
+     *
+     * @param restClient       the client for making HTTP requests to external APIs.
+     * @param categoryStorage  the in-memory storage for {@link Category} entities.
+     * @param locationStorage  the in-memory storage for {@link Location} entities.
+     */
     @Autowired
-    private InMemoryStorage<Location, String> locationStorage;
+    public KudaGoDataLoader(RestClient restClient, InMemoryStorage<Category, Integer> categoryStorage, InMemoryStorage<Location, String> locationStorage) {
+        this.restClient = restClient;
+        this.categoryStorage = categoryStorage;
+        this.locationStorage = locationStorage;
+    }
 
     /**
      * Initializes data from the KudaGo API and stores it in memory.

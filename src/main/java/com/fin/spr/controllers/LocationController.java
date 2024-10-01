@@ -23,8 +23,21 @@ import java.util.Optional;
 @LogExecutionTime
 public class LocationController implements ILocationController {
 
+    private final ILocationService locationService;
+
+    /**
+     * REST controller responsible for managing locations in the application.
+     *
+     * <p>This controller provides endpoints for CRUD operations related to
+     * {@link Location} entities. It uses an {@link ILocationService} for
+     * handling the business logic, which is injected via constructor dependency injection.</p>
+     *
+     * @param locationService the service responsible for location-related operations.
+     */
     @Autowired
-    private ILocationService locationService;
+    public LocationController(ILocationService locationService) {
+        this.locationService = locationService;
+    }
 
     /**
      * Retrieves all locations stored in the system.
