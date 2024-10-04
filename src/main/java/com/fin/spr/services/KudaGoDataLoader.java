@@ -7,6 +7,7 @@ import com.fin.spr.storage.InMemoryStorage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.ParameterizedTypeReference;
@@ -48,8 +49,6 @@ import java.util.List;
 @LogExecutionTime
 public class KudaGoDataLoader {
 
-    private static final String CATEGORIES_API_URL = "https://kudago.com/public-api/v1.4/place-categories/";
-    private static final String LOCATIONS_API_URL = "https://kudago.com/public-api/v1.4/locations/";
     private static final Logger logger = LoggerFactory.getLogger(KudaGoDataLoader.class);
 
     private final RestClient restClient;
@@ -58,23 +57,28 @@ public class KudaGoDataLoader {
 
     private final InMemoryStorage<Location, String> locationStorage;
 
+    private final String categoriesApiUrl;
+    private final String locationsApiUrl;
+
     /**
-     * Service responsible for loading and initializing data from the KudaGo API.
+     * Constructs a new {@code KudaGoDataLoader} instance.
      *
-     * <p>This service fetches categories and locations from external APIs and
-     * stores them in memory for further use. It uses {@link RestClient} to make
-     * HTTP requests and two separate in-memory storage components for storing
-     * {@link Category} and {@link Location} entities.</p>
-     *
-     * @param restClient       the client for making HTTP requests to external APIs.
-     * @param categoryStorage  the in-memory storage for {@link Category} entities.
-     * @param locationStorage  the in-memory storage for {@link Location} entities.
+     * @param restClient           The {@link RestClient} used to make HTTP requests to the KudaGo API.
+     * @param categoryStorage      The {@link InMemoryStorage} for storing categories.
+     * @param locationStorage     The {@link InMemoryStorage} for storing locations.
+     * @param categoriesApiUrl The URL of the KudaGo API endpoint for categories.
+     * @param locationsApiUrl The URL of the KudaGo API endpoint for locations.
      */
     @Autowired
-    public KudaGoDataLoader(RestClient restClient, InMemoryStorage<Category, Integer> categoryStorage, InMemoryStorage<Location, String> locationStorage) {
+    public KudaGoDataLoader(RestClient restClient, InMemoryStorage<Category, Integer> categoryStorage,
+                            InMemoryStorage<Location, String> locationStorage,
+                            @Value("${categories.api.url}") String categoriesApiUrl,
+                            @Value("${locations.api.url}") String locationsApiUrl) {
         this.restClient = restClient;
         this.categoryStorage = categoryStorage;
         this.locationStorage = locationStorage;
+        this.categoriesApiUrl = categoriesApiUrl;
+        this.locationsApiUrl = locationsApiUrl;
     }
 
     /**
@@ -94,7 +98,7 @@ public class KudaGoDataLoader {
         logger.info("Starting data initialization from the KudaGo API...");
 
         List<Category> categories = restClient.get()
-                .uri(CATEGORIES_API_URL)
+                .uri(categoriesApiUrl)
                 .retrieve()
                 .body(new ParameterizedTypeReference<>() {});
 
@@ -106,7 +110,7 @@ public class KudaGoDataLoader {
         }
 
         List<Location> locations = restClient.get()
-                .uri(LOCATIONS_API_URL)
+                .uri(locationsApiUrl)
                 .retrieve()
                 .body(new ParameterizedTypeReference<>() {});
 
