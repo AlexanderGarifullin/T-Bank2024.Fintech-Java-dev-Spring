@@ -22,8 +22,22 @@ import java.util.Optional;
 @LogExecutionTime
 public class CategoryController implements ICategoryController {
 
+    private final ICategoryService categoryService;
+
+    /**
+     * REST controller responsible for managing categories in the application.
+     *
+     * <p>This controller provides endpoints for performing CRUD operations
+     * on {@link Category} entities. The business logic is handled by
+     * an {@link ICategoryService} implementation, which is injected via
+     * constructor dependency injection.</p>
+     *
+     * @param categoryService the service responsible for category-related operations.
+     */
     @Autowired
-    private ICategoryService categoryService;
+    public CategoryController(ICategoryService categoryService) {
+        this.categoryService = categoryService;
+    }
 
     /**
      * Retrieves all categories.

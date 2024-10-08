@@ -136,3 +136,5 @@ public class LocationControllerIntegrationTest {
                 .andExpect(status().isNotFound());
     }
 }
+
+// ls7

@@ -121,3 +121,5 @@ class LocationControllerTest {
         assertThat(response.getStatusCodeValue()).isEqualTo(404);
     }
 }
+
+// ls7

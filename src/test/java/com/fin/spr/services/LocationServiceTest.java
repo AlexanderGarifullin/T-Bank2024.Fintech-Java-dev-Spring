@@ -92,3 +92,5 @@ class LocationServiceTest {
         verify(locationStorage, times(1)).delete("slug2");
     }
 }
+
+// ls7

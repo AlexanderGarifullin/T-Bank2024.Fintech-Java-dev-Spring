@@ -17,8 +17,22 @@ import java.util.Optional;
 @Service
 public class LocationService implements ILocationService {
 
+
+    private final InMemoryStorage<Location, String> locationStorage;
+
+    /**
+     * Service class responsible for managing locations.
+     *
+     * <p>This class uses an in-memory storage mechanism for storing
+     * and retrieving {@link Location} entities. The storage is injected
+     * via constructor dependency injection.</p>
+     *
+     * @param locationStorage the in-memory storage for {@link Location} entities.
+     */
     @Autowired
-    private InMemoryStorage<Location, String> locationStorage;
+    public LocationService(InMemoryStorage<Location, String> locationStorage) {
+        this.locationStorage = locationStorage;
+    }
 
     /**
      * Retrieves a list of all locations stored in the system.
