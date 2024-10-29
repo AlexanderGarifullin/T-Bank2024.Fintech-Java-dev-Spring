@@ -18,6 +18,21 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * The {@code KudaGoSerivce} class is responsible for periodically loading data from the KudaGo API,
+ * specifically categories and locations, and storing them in in-memory storage.
+ * <p>
+ * This service supports parallel processing for efficient data loading, using {@link ExecutorService}
+ * and {@link ScheduledExecutorService}. It retrieves data using a {@link RestClient}.
+ * </p>
+ *
+ * @see Category
+ * @see Location
+ * @see InMemoryStorage
+ * @see LogExecutionTime
+ *
+ * @version 1.0
+ */
 @Service
 public class KudaGoSerivce  {
     @Value("${kudago.api.categories.url}")
@@ -37,7 +52,15 @@ public class KudaGoSerivce  {
     private final ExecutorService fixedThreadPool;
     private final ScheduledExecutorService scheduledThreadPool;
 
-
+    /**
+     * Constructs a new {@code KudaGoSerivce} instance.
+     *
+     * @param restClient         the RestClient used to fetch data from the KudaGo API
+     * @param categoryStorage    the in-memory storage for categories
+     * @param locationStorage    the in-memory storage for locations
+     * @param fixedThreadPool    the thread pool used for parallel data loading
+     * @param scheduledThreadPool the scheduled thread pool for periodic data loading
+     */
     public KudaGoSerivce(RestClient restClient,
                          InMemoryStorage<Category, Integer> categoryStorage,
                          InMemoryStorage<Location, String> locationStorage,
@@ -50,6 +73,13 @@ public class KudaGoSerivce  {
         this.scheduledThreadPool = scheduledThreadPool;
     }
 
+    /**
+     * Initiates the periodic data loading process, scheduling data updates based on the specified {@code scheduleDuration}.
+     * <p>
+     * This method runs at fixed intervals defined by {@code scheduleDuration} and triggers the parallel loading of categories
+     * and locations using the {@link #parallelInitData()} method.
+     * </p>
+     */
     public void initData() {
         scheduledThreadPool.scheduleAtFixedRate(
                 this::parallelInitData,
@@ -85,18 +115,10 @@ public class KudaGoSerivce  {
      * </p>
      */
     private void loadCategories() {
-        List<Category> categories = null;
-        try {
-            var v  = restClient.get()
-                    .uri(CATEGORIES_API_URL)
-                    .retrieve();
-            categories = v.body(new ParameterizedTypeReference<>() {});
-        }
-        catch (Exception e) {
-            logger.info("ERROR LOAD CATEGORIES ");
-            logger.error(e.getMessage());
-        }
-        logger.info("Size categories = " + categories.size());
+        List<Category> categories = restClient.get()
+                .uri(CATEGORIES_API_URL)
+                .retrieve()
+                .body(new ParameterizedTypeReference<>() {});
         if (categories != null) {
             categories.forEach(category -> categoryStorage.create(category.getId(), category));
             logger.info("Categories have been successfully initialized.");
@@ -112,18 +134,10 @@ public class KudaGoSerivce  {
      * </p>
      */
     private void loadLocations() {
-        List<Location> locations = null;
-        try {
-            var v  = restClient.get()
-                    .uri(LOCATIONS_API_URL)
-                    .retrieve();
-            locations = v.body(new ParameterizedTypeReference<>() {});
-        } catch (Exception e) {
-            logger.info("ERROR loadLocations ");
-            logger.error(e.getMessage());
-        }
-
-        logger.info("Size locations = " + locations.size());
+        List<Location> locations = restClient.get()
+                .uri(LOCATIONS_API_URL)
+                .retrieve()
+                .body(new ParameterizedTypeReference<>() {});
         if (locations != null) {
             locations.forEach(location -> locationStorage.create(location.getSlug(), location));
             logger.info("Locations have been successfully initialized.");
