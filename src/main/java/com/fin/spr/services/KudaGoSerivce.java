@@ -20,10 +20,10 @@ import java.util.concurrent.TimeUnit;
 
 @Service
 public class KudaGoSerivce  {
-    @Value("${categories.api.url}")
+    @Value("${kudago.api.categories.url}")
     private String CATEGORIES_API_URL;
 
-    @Value("${locations.api.url}")
+    @Value("${kudago.api.locations.url}")
     private String LOCATIONS_API_URL;
 
     private static final Logger logger = LoggerFactory.getLogger(KudaGoSerivce.class);
