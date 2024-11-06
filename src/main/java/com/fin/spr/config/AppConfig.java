@@ -1,7 +1,10 @@
 package com.fin.spr.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.web.client.RestClient;
 
 /**
@@ -17,7 +20,10 @@ public class AppConfig {
      * @return a {@link RestClient} instance used for making HTTP requests
      */
     @Bean
-    public RestClient restClient() {
-        return  RestClient.create();
+    public RestClient restClient(@Value("${kudago.api.base.url}") String url) {
+        return RestClient.builder()
+                .baseUrl(url)
+                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .build();
     }
 }

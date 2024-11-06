@@ -1,0 +1,19 @@
+spring:
+  application:
+    name: T-Bank2024.Fintech-Java-dev-Spring
+  profiles:
+    active: prod
+
+kudago:
+  api:
+    base:
+      url: https://kudago.com/public-api/v1.4
+    categories:
+      url: /place-categories/
+    locations:
+      url: /locations/
+
+app:
+  init:
+    fixed-thread-pool-size: 1
+    schedule-duration: PT1H
