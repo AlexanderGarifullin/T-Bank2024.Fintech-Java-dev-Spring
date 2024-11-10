@@ -1,1 +1,3 @@
 databaseChangeLog:
+  - include:
+      file: classpath:/db/changelog/kudago-changelog.sql
