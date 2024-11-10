@@ -24,17 +24,27 @@ repositories {
 }
 
 dependencies {
+	// spring
 	implementation 'org.springframework.boot:spring-boot-starter-web'
+
+	// db
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation group: 'org.liquibase', name: 'liquibase-core', version: '4.29.2'
+	implementation group: 'org.postgresql', name: 'postgresql', version: '42.7.4'
+
+	// lombok
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
 
+	// aop
 	implementation 'org.springframework.boot:spring-boot-starter-aop'
 	implementation 'org.aspectj:aspectjweaver'
 
-	// LOGS
+	// logs
 	implementation 'org.slf4j:slf4j-api:2.0.0'
 	implementation 'ch.qos.logback:logback-classic:1.4.12'
 
+	// test
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.testcontainers:junit-jupiter:1.20.1'
 	testImplementation 'org.wiremock:wiremock-standalone:3.9.1'

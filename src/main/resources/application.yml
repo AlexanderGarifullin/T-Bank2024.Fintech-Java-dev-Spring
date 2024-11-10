@@ -1,6 +1,11 @@
 spring:
   application:
     name: T-Bank2024.Fintech-Java-dev-Spring
+  datasource:
+    url: jdbc:postgresql://${POSTGRES_CONTAINER_NAME:localhost}:${POSTGRES_PORT:5432}/${POSTGRES_DB:KudaGoLocalDB}
+    username: ${POSTGRES_USER:postgres}
+    password: ${POSTGRES_PASSWORD:123}
+    driver-class-name: org.postgresql.Driver
   profiles:
     active: prod
 
@@ -15,5 +20,5 @@ kudago:
 
 app:
   init:
-    fixed-thread-pool-size: 1
+    fixed-thread-pool-size: 2
     schedule-duration: PT1H
