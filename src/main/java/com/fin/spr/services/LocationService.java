@@ -1,7 +1,10 @@
 package com.fin.spr.services;
 
+import com.fin.spr.exceptions.EntityNotFoundException;
+import com.fin.spr.exceptions.LocationNotFoundException;
 import com.fin.spr.interfaces.ILocationService;
 import com.fin.spr.models.Location;
+import com.fin.spr.repository.jpa.LocationRepository;
 import com.fin.spr.storage.InMemoryStorage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,75 +19,48 @@ import java.util.Optional;
  */
 @Service
 public class LocationService implements ILocationService {
+    private final LocationRepository locationRepository;
 
-
-    private final InMemoryStorage<Location, String> locationStorage;
-
-    /**
-     * Service class responsible for managing locations.
-     *
-     * <p>This class uses an in-memory storage mechanism for storing
-     * and retrieving {@link Location} entities. The storage is injected
-     * via constructor dependency injection.</p>
-     *
-     * @param locationStorage the in-memory storage for {@link Location} entities.
-     */
     @Autowired
-    public LocationService(InMemoryStorage<Location, String> locationStorage) {
-        this.locationStorage = locationStorage;
+    public LocationService(LocationRepository locationRepository) {
+        this.locationRepository = locationRepository;
     }
 
-    /**
-     * Retrieves a list of all locations stored in the system.
-     *
-     * @return a list of all {@link Location} entities
-     */
     @Override
     public List<Location> getAllLocations() {
-        return locationStorage.getAll();
+        return locationRepository.findAll();
     }
 
-    /**
-     * Retrieves a location by its unique slug.
-     *
-     * @param slug the unique slug of the location to retrieve
-     * @return an {@link Optional} containing the found {@link Location}, or empty if not found
-     */
     @Override
-    public Optional<Location> getLocationBySlug(String slug) {
-        return locationStorage.getById(slug);
+    public Location getLocationById(Long id) {
+        return locationRepository.findById(id).orElseThrow(() ->
+                new LocationNotFoundException(id));
     }
 
-    /**
-     * Creates a new location in the storage.
-     *
-     * @param location the {@link Location} entity to be created
-     */
     @Override
-    public void createLocation(Location location) {
-        locationStorage.create(location.getSlug(), location);
+    public Location createLocation(String slug, String name) {
+        Location location = new Location();
+        location.setName(name);
+        location.setSlug(slug);
+        return locationRepository.save(location);
     }
 
-    /**
-     * Updates an existing location in the storage.
-     *
-     * @param slug     the unique slug of the location to update
-     * @param location the updated {@link Location} entity
-     * @return true if the update was successful, false if the location was not found
-     */
     @Override
-    public boolean updateLocation(String slug, Location location) {
-        return locationStorage.update(slug, location);
+    public Location updateLocation(Long id, String slug, String name) {
+        var oldLocation = locationRepository.findById(id).orElseThrow(() ->
+                new LocationNotFoundException(id));
+
+        oldLocation.setSlug(slug);
+        oldLocation.setSlug(name);
+        return locationRepository.save(oldLocation);
     }
 
-    /**
-     * Deletes a location from the storage by its unique slug.
-     *
-     * @param slug the unique slug of the location to be deleted
-     * @return true if the deletion was successful, false if the location was not found
-     */
     @Override
-    public boolean deleteLocation(String slug) {
-        return locationStorage.delete(slug);
+    public void deleteLocation(Long id) {
+        if (locationRepository.existsById(id)) {
+            locationRepository.deleteById(id);
+            return;
+        }
+        throw new LocationNotFoundException(id);
     }
 }
