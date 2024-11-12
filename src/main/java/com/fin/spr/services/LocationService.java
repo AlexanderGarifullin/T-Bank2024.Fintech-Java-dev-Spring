@@ -1,11 +1,13 @@
 package com.fin.spr.services;
 
+import com.fin.spr.controllers.payload.LocationPayload;
 import com.fin.spr.exceptions.EntityNotFoundException;
 import com.fin.spr.exceptions.LocationNotFoundException;
 import com.fin.spr.interfaces.ILocationService;
 import com.fin.spr.models.Location;
 import com.fin.spr.repository.jpa.LocationRepository;
 import com.fin.spr.storage.InMemoryStorage;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +19,8 @@ import java.util.Optional;
  * for managing locations. It utilizes an in-memory storage solution to perform CRUD operations
  * on {@link Location} entities.
  */
+
+@Slf4j
 @Service
 public class LocationService implements ILocationService {
     private final LocationRepository locationRepository;
@@ -24,6 +28,18 @@ public class LocationService implements ILocationService {
     @Autowired
     public LocationService(LocationRepository locationRepository) {
         this.locationRepository = locationRepository;
+    }
+
+    public void initLocations(List<LocationPayload> locations) {
+        locations.forEach(payload -> {
+            if (!locationRepository.existsBySlug(payload.slug())) {
+                Location location = new Location();
+                location.setSlug(payload.slug());
+                location.setName(payload.name());
+                locationRepository.save(location);
+            }
+        });
+        log.info("Locations added to data base!");
     }
 
     @Override

@@ -1,6 +1,7 @@
 package com.fin.spr.services;
 
 import com.fin.spr.annotations.LogExecutionTime;
+import com.fin.spr.controllers.payload.LocationPayload;
 import com.fin.spr.models.Category;
 import com.fin.spr.models.Location;
 import com.fin.spr.storage.InMemoryStorage;
@@ -33,6 +34,7 @@ import java.util.concurrent.TimeUnit;
  *
  * @version 1.0
  */
+
 @Service
 public class KudaGoSerivce  {
     @Value("${kudago.api.categories.url}")
@@ -48,27 +50,19 @@ public class KudaGoSerivce  {
 
     private final RestClient restClient;
     private InMemoryStorage<Category, Integer> categoryStorage;
-    private InMemoryStorage<Location, String> locationStorage;
     private final ExecutorService fixedThreadPool;
     private final ScheduledExecutorService scheduledThreadPool;
+    private final LocationService locationService;
 
-    /**
-     * Constructs a new {@code KudaGoSerivce} instance.
-     *
-     * @param restClient         the RestClient used to fetch data from the KudaGo API
-     * @param categoryStorage    the in-memory storage for categories
-     * @param locationStorage    the in-memory storage for locations
-     * @param fixedThreadPool    the thread pool used for parallel data loading
-     * @param scheduledThreadPool the scheduled thread pool for periodic data loading
-     */
+
     public KudaGoSerivce(RestClient restClient,
                          InMemoryStorage<Category, Integer> categoryStorage,
-                         InMemoryStorage<Location, String> locationStorage,
+                         LocationService locationService,
                          @Qualifier("fixedThreadPool") ExecutorService fixedThreadPool,
                          @Qualifier("scheduledThreadPool") ScheduledExecutorService scheduledThreadPool) {
         this.restClient = restClient;
         this.categoryStorage = categoryStorage;
-        this.locationStorage = locationStorage;
+        this.locationService = locationService;
         this.fixedThreadPool = fixedThreadPool;
         this.scheduledThreadPool = scheduledThreadPool;
     }
@@ -99,7 +93,8 @@ public class KudaGoSerivce  {
         try {
             fixedThreadPool.invokeAll(List.of(
                     () -> { loadCategories(); return null; },
-                    () -> { loadLocations(); return null; }
+                    () -> { loadLocations(); return null; } ,
+                    () -> { loadEvents(); return null; }
             ));
             logger.info("Data initialization completed with invokeAll.");
         } catch (InterruptedException e) {
@@ -127,22 +122,20 @@ public class KudaGoSerivce  {
         }
     }
 
-    /**
-     * Loads locations from the KudaGo API and stores them in {@link InMemoryStorage}.
-     * <p>
-     * If no data is returned, a warning message is logged.
-     * </p>
-     */
     private void loadLocations() {
-        List<Location> locations = restClient.get()
+        List<LocationPayload> locations = restClient.get()
                 .uri(LOCATIONS_API_URL)
                 .retrieve()
                 .body(new ParameterizedTypeReference<>() {});
         if (locations != null) {
-            locations.forEach(location -> locationStorage.create(location.getSlug(), location));
+            locationService.initLocations(locations);
             logger.info("Locations have been successfully initialized.");
         } else {
             logger.warn("Received null locations.");
         }
+    }
+
+    private void loadEvents() {
+
     }
 }
