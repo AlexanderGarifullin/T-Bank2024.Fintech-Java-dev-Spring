@@ -17,7 +17,13 @@ kudago:
       url: /place-categories/
     locations:
       url: /locations/
-
+    events:
+      url: /events/
+  limits:
+    events:
+      page_size: 100
+      max_page: 10
+# https://kudago.com/public-api/v1.4/events/?page=6&page_size=100&fields=title,dates,price,is_free,location
 app:
   init:
     fixed-thread-pool-size: 2
