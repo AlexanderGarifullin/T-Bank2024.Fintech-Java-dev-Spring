@@ -67,7 +67,7 @@ public class LocationService implements ILocationService {
                 new LocationNotFoundException(id));
 
         oldLocation.setSlug(slug);
-        oldLocation.setSlug(name);
+        oldLocation.setName(name);
         return locationRepository.save(oldLocation);
     }
 
