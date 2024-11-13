@@ -1,6 +1,6 @@
 package com.fin.spr.services;
 
-import com.fin.spr.interfaces.ICategoryService;
+import com.fin.spr.interfaces.service.ICategoryService;
 import com.fin.spr.models.Category;
 import com.fin.spr.storage.InMemoryStorage;
 import org.springframework.beans.factory.annotation.Autowired;

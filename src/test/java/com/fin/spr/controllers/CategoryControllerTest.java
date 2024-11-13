@@ -1,7 +1,7 @@
 package com.fin.spr.controllers;
 
 import com.fin.spr.exceptions.EntityAlreadyExistsException;
-import com.fin.spr.interfaces.ICategoryService;
+import com.fin.spr.interfaces.service.ICategoryService;
 import com.fin.spr.models.Category;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

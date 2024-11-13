@@ -2,8 +2,8 @@ package com.fin.spr.controllers;
 
 import com.fin.spr.annotations.LogExecutionTime;
 import com.fin.spr.exceptions.EntityAlreadyExistsException;
-import com.fin.spr.interfaces.ICategoryController;
-import com.fin.spr.interfaces.ICategoryService;
+import com.fin.spr.interfaces.controller.ICategoryController;
+import com.fin.spr.interfaces.service.ICategoryService;
 import com.fin.spr.models.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
