@@ -2,9 +2,8 @@ package com.fin.spr.controllers;
 
 import com.fin.spr.annotations.LogExecutionTime;
 import com.fin.spr.controllers.payload.LocationPayload;
-import com.fin.spr.exceptions.EntityAlreadyExistsException;
-import com.fin.spr.interfaces.ILocationController;
-import com.fin.spr.interfaces.ILocationService;
+import com.fin.spr.interfaces.controller.ILocationController;
+import com.fin.spr.interfaces.service.ILocationService;
 import com.fin.spr.models.Location;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +12,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 /**
  * The {@code LocationController} class handles HTTP requests related to {@link Location} entities.
@@ -23,7 +21,7 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/v1/locations")
 @LogExecutionTime
-public class LocationController {
+public class LocationController implements ILocationController{
 
     private final ILocationService locationService;
 
@@ -32,7 +30,6 @@ public class LocationController {
     public LocationController(ILocationService locationService) {
         this.locationService = locationService;
     }
-
 
     @GetMapping
     public List<Location> getAllLocations() {

@@ -1,5 +1,9 @@
 package com.fin.spr.models;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -14,6 +18,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@ToString(exclude = "events")
 @Table(name = "t_locations", schema = "kudago")
 public class Location {
 
@@ -27,6 +32,7 @@ public class Location {
     @Column(name = "c_name", nullable = false)
     private String name;
 
-    @OneToMany(mappedBy = "location", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "location", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private List<Event> events;
 }

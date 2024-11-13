@@ -1,18 +1,15 @@
 package com.fin.spr.services;
 
 import com.fin.spr.controllers.payload.LocationPayload;
-import com.fin.spr.exceptions.EntityNotFoundException;
 import com.fin.spr.exceptions.LocationNotFoundException;
-import com.fin.spr.interfaces.ILocationService;
+import com.fin.spr.interfaces.service.ILocationService;
 import com.fin.spr.models.Location;
 import com.fin.spr.repository.jpa.LocationRepository;
-import com.fin.spr.storage.InMemoryStorage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 /**
  * The {@code LocationService} class provides the implementation of the {@link ILocationService} interface
