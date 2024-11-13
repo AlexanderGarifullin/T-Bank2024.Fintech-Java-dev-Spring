@@ -1,9 +1,8 @@
-package com.fin.spr.interfaces;
+package com.fin.spr.interfaces.service;
 
 import com.fin.spr.models.Location;
 
 import java.util.List;
-import java.util.Optional;
 
 /**
  * The {@code ILocationService} interface defines the contract for services

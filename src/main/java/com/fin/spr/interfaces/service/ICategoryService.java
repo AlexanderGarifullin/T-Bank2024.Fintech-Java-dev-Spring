@@ -1,4 +1,4 @@
-package com.fin.spr.interfaces;
+package com.fin.spr.interfaces.service;
 
 import com.fin.spr.models.Category;
 

@@ -1,4 +1,4 @@
-package com.fin.spr.interfaces;
+package com.fin.spr.interfaces.controller;
 
 import com.fin.spr.models.Category;
 import org.springframework.http.ResponseEntity;
