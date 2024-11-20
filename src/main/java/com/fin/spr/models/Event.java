@@ -19,6 +19,9 @@ import java.time.Instant;
 @AllArgsConstructor
 @Entity
 @Table(name = "t_events", schema = "kudago")
+@JsonIdentityInfo(
+        generator = ObjectIdGenerators.PropertyGenerator.class,
+        property = "id")
 public class Event {
 
     @Id
@@ -39,6 +42,6 @@ public class Event {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "c_location_id", nullable = false)
-    @JsonBackReference
+//    @JsonBackReference
     private Location location;
 }

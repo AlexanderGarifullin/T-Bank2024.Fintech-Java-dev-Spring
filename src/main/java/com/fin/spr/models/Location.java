@@ -20,6 +20,9 @@ import java.util.List;
 @Entity
 @ToString(exclude = "events")
 @Table(name = "t_locations", schema = "kudago")
+@JsonIdentityInfo(
+        generator = ObjectIdGenerators.PropertyGenerator.class,
+        property = "id")
 public class Location {
 
     @Id
@@ -33,6 +36,6 @@ public class Location {
     private String name;
 
     @OneToMany(mappedBy = "location", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference
+//    @JsonManagedReference
     private List<Event> events;
 }
