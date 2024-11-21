@@ -2,26 +2,22 @@ package com.fin.spr.controllers;
 
 import com.fin.spr.annotations.LogExecutionTime;
 import com.fin.spr.controllers.payload.LocationPayload;
-import com.fin.spr.interfaces.controller.ILocationController;
 import com.fin.spr.interfaces.service.ILocationService;
 import com.fin.spr.models.Location;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-/**
- * The {@code LocationController} class handles HTTP requests related to {@link Location} entities.
- * It implements the {@link ILocationController} interface and uses the {@link ILocationService}
- * to perform CRUD operations on locations.
- */
+
 @RestController
 @RequestMapping("/api/v1/locations")
 @LogExecutionTime
-public class LocationController implements ILocationController{
+public class LocationController{
 
     private final ILocationService locationService;
 
@@ -36,9 +32,16 @@ public class LocationController implements ILocationController{
         return locationService.getAllLocations();
     }
 
+
     @GetMapping("/{id}")
-    public Location getLocationById(@PathVariable Long id) {
-        return locationService.getLocationById(id);
+    public ResponseEntity<Location>  getLocationById(@PathVariable Long id) {
+        try {
+            return  ResponseEntity.ok(locationService.getLocationById(id));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .contentType(MediaType.APPLICATION_PROBLEM_JSON)
+                    .body(null);
+        }
     }
 
     @PostMapping
@@ -48,14 +51,26 @@ public class LocationController implements ILocationController{
     }
 
     @PutMapping("/{id}")
-    public Location updateLocation(@PathVariable Long id,
+    public ResponseEntity<Location>  updateLocation(@PathVariable Long id,
                                       @Valid @RequestBody LocationPayload location) {
-        return locationService.updateLocation(id, location.slug(), location.name());
+        try {
+            return  ResponseEntity.ok(locationService.updateLocation(id, location.slug(), location.name()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .contentType(MediaType.APPLICATION_PROBLEM_JSON)
+                    .body(null);
+        }
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteLocation(@PathVariable Long id) {
-        locationService.deleteLocation(id);
-        return ResponseEntity.noContent().build();
+        try {
+            locationService.deleteLocation(id);
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .contentType(MediaType.APPLICATION_PROBLEM_JSON)
+                    .body(null);
+        }
     }
 }

@@ -1,8 +1,6 @@
 package com.fin.spr.models;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import lombok.*;
@@ -23,6 +21,7 @@ import java.util.List;
 @JsonIdentityInfo(
         generator = ObjectIdGenerators.PropertyGenerator.class,
         property = "id")
+@EqualsAndHashCode(exclude = "events")
 public class Location {
 
     @Id
@@ -36,6 +35,5 @@ public class Location {
     private String name;
 
     @OneToMany(mappedBy = "location", cascade = CascadeType.ALL, orphanRemoval = true)
-//    @JsonManagedReference
     private List<Event> events;
 }

@@ -45,7 +45,7 @@ public class LocationService implements ILocationService {
     }
 
     @Override
-    public Location getLocationById(Long id) {
+    public Location getLocationById(Long id){
         return locationRepository.findById(id).orElseThrow(() ->
                 new LocationNotFoundException(id));
     }
@@ -69,7 +69,7 @@ public class LocationService implements ILocationService {
     }
 
     @Override
-    public void deleteLocation(Long id) {
+    public void deleteLocation(Long id) throws LocationNotFoundException{
         if (locationRepository.existsById(id)) {
             locationRepository.deleteById(id);
             return;
