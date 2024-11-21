@@ -1,6 +1,5 @@
 package com.fin.spr;
 
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import liquibase.Contexts;
 import liquibase.Liquibase;
@@ -8,25 +7,20 @@ import liquibase.database.Database;
 import liquibase.database.jvm.JdbcConnection;
 import liquibase.exception.LiquibaseException;
 import liquibase.resource.ClassLoaderResourceAccessor;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
-@Testcontainers
 @AutoConfigureMockMvc
 @SpringBootTest(classes = Application.class)
 @ActiveProfiles("test")
-@TestInstance(TestInstance.Lifecycle.PER_METHOD)
 public abstract class BaseIntegrationTest {
 
     private PostgreSQLContainer<?> postgreSQLContainer;
@@ -37,7 +31,6 @@ public abstract class BaseIntegrationTest {
     @Autowired
     protected ObjectMapper objectMapper;
 
-    @BeforeEach
     void setUp() {
         postgreSQLContainer = new PostgreSQLContainer<>("postgres:17")
                 .withDatabaseName("testdb")
