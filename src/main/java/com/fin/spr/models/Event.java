@@ -2,13 +2,9 @@ package com.fin.spr.models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.Instant;
 
@@ -19,9 +15,7 @@ import java.time.Instant;
 @AllArgsConstructor
 @Entity
 @Table(name = "t_events", schema = "kudago")
-@JsonIdentityInfo(
-        generator = ObjectIdGenerators.PropertyGenerator.class,
-        property = "id")
+@EqualsAndHashCode(exclude = "location")
 public class Event {
 
     @Id
@@ -42,6 +36,6 @@ public class Event {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "c_location_id", nullable = false)
-//    @JsonBackReference
+    @JsonBackReference
     private Location location;
 }
