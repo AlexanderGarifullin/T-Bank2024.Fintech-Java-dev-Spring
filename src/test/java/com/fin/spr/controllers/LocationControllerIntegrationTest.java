@@ -1,140 +1,203 @@
 package com.fin.spr.controllers;
 
-import com.fin.spr.exceptions.EntityAlreadyExistsException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fin.spr.BaseIntegrationTest;
+import com.fin.spr.controllers.payload.LocationPayload;
+import com.fin.spr.exceptions.LocationNotFoundException;
 import com.fin.spr.models.Location;
+import com.fin.spr.repository.jpa.LocationRepository;
 import com.fin.spr.services.LocationService;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
 
-import java.util.Arrays;
-import java.util.Optional;
+import java.util.List;
+import java.util.stream.Stream;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest
-@AutoConfigureMockMvc
-public class LocationControllerIntegrationTest {
+
+class LocationControllerIntegrationTest extends BaseIntegrationTest {
+
+    private static final String uri = "/api/v1/locations";
 
     @Autowired
-    private MockMvc mockMvc;
-
-    @MockBean
     private LocationService locationService;
 
     @Autowired
-    private ObjectMapper objectMapper;
+    private LocationRepository locationRepository;
 
-    private Location testLocation1;
-    private Location testLocation2;
-
-    private static final String BASE_URL = "/api/v1/locations";
-
-    @BeforeEach
-    public void setup() {
-        testLocation1 = new Location("paris", "Paris");
-        testLocation2 = new Location("london", "London");
+    @AfterEach
+    void cleanDatabase() {
+        locationRepository.deleteAll();
     }
 
     @Test
-    public void testGetAllLocations() throws Exception {
-        Mockito.when(locationService.getAllLocations()).thenReturn(Arrays.asList(testLocation1, testLocation2));
+    void getAllLocations_notEmpty() throws Exception {
+        LocationPayload payload = new LocationPayload("slug1", "Test Location");
+        var createdLocation = locationService.createLocation(payload.slug(), payload.name());
 
-        mockMvc.perform(get(BASE_URL))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$[0].name").value("Paris"))
-                .andExpect(jsonPath("$[1].name").value("London"));
+        var mvcResponse = mockMvc.perform(get(uri))
+                .andExpectAll(
+                        status().isOk(),
+                        content().contentType(MediaType.APPLICATION_JSON))
+                .andReturn()
+                .getResponse();
+        
+        var locations = objectMapper.readValue(
+                mvcResponse.getContentAsString(),
+                new TypeReference<List<Location>>() {
+                }
+        );
+
+        assertThat(locations).isNotEmpty();
+        assertThat(locations).contains(createdLocation);
+   }
+
+   @Test
+   void getLocationById_success() throws Exception {
+       LocationPayload payload = new LocationPayload("slug1", "Test Location");
+       var createdLocation = locationService.createLocation(payload.slug(), payload.name());
+
+       var mvcResponse = mockMvc.perform(get(uri + "/" + createdLocation.getId()))
+               .andExpectAll(
+                       status().isOk(),
+                       content().contentType(MediaType.APPLICATION_JSON))
+               .andReturn()
+               .getResponse();
+
+       var location = objectMapper.readValue(mvcResponse.getContentAsString(), Location.class);
+
+       assertThat(location).isEqualTo(createdLocation);
     }
 
     @Test
-    public void testGetLocationBySlug_Success() throws Exception {
-        Mockito.when(locationService.getLocationBySlug("paris")).thenReturn(Optional.of(testLocation1));
-
-        mockMvc.perform(get(BASE_URL + "/paris"))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.name").value("Paris"))
-                .andExpect(jsonPath("$.slug").value("paris"));
+    void getLocationById_notFound() throws Exception {
+        mockMvc.perform(get(uri + "/88"))
+                .andExpectAll(
+                  status().isNotFound(),
+                  content().contentType(MediaType.APPLICATION_PROBLEM_JSON)
+                );
     }
 
     @Test
-    public void testGetLocationBySlug_NotFound() throws Exception {
-        Mockito.when(locationService.getLocationBySlug("berlin")).thenReturn(Optional.empty());
+    void createLocation_success() throws Exception{
+        LocationPayload payload = new LocationPayload("slug1", "Test Location");
 
-        mockMvc.perform(get(BASE_URL + "/berlin"))
-                .andExpect(status().isNotFound());
-    }
-
-    @Test
-    public void testCreateLocation_Success() throws Exception {
-        Mockito.doNothing().when(locationService).createLocation(any(Location.class));
-
-        mockMvc.perform(post(BASE_URL)
+        var mvcResponse = mockMvc.perform(post(uri)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(testLocation1)))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.name").value("Paris"))
-                .andExpect(jsonPath("$.slug").value("paris"));
+                        .content(objectMapper.writeValueAsString(payload)))
+                .andExpectAll(
+                        status().isCreated(),
+                        content().contentType(MediaType.APPLICATION_JSON))
+                .andReturn()
+                .getResponse();
+
+        var location = objectMapper.readValue(mvcResponse.getContentAsString(), Location.class);
+
+        assertThat(location.getName()).isEqualTo(payload.name());
+        assertThat(location.getSlug()).isEqualTo(payload.slug());
+
+        var locationFromDb = locationService.getLocationById(location.getId());
+        assertThat(locationFromDb).isEqualTo(location);
     }
 
-    @Test
-    public void testCreateLocation_Conflict() throws Exception {
-        Mockito.doThrow(new EntityAlreadyExistsException("Location already exists")).when(locationService).createLocation(any(Location.class));
+    private static Stream<Arguments> invalidLocationPayloads() {
+        return Stream.of(
+                // Пустой slug
+                Arguments.of(new LocationPayload("", "Valid Name"), "location.request.slug.is_blank"),
+                // Слишком короткий slug
+                Arguments.of(new LocationPayload("ab", "Valid Name"), "location.request.slug.invalid_size"),
+                // Слишком длинный slug
+                Arguments.of(new LocationPayload("abcdef", "Valid Name"), "location.request.slug.invalid_size"),
+                // Пустой name
+                Arguments.of(new LocationPayload("slug1", ""), "location.request.name.is_blank"),
+                // Слишком длинный name
+                Arguments.of(new LocationPayload("slug2", "A".repeat(51)), "location.request.name.invalid_size")
+        );
+    }
 
-        mockMvc.perform(post(BASE_URL)
+    @ParameterizedTest
+    @MethodSource("invalidLocationPayloads")
+    void createLocation_badRequest(LocationPayload locationPayload) throws Exception {
+        mockMvc.perform(post(uri)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(testLocation1)))
-                .andExpect(status().isConflict());
+                        .content(objectMapper.writeValueAsString(locationPayload)))
+                .andExpectAll(
+                        status().isBadRequest());
     }
 
     @Test
-    public void testUpdateLocation_Success() throws Exception {
-        Mockito.when(locationService.updateLocation(eq("paris"), any(Location.class))).thenReturn(true);
+    public void updateLocation_success() throws Exception{
+        var oldLocation = locationService.createLocation("slug1", "Old Location");
 
-        mockMvc.perform(put(BASE_URL + "/paris")
+        LocationPayload newPayload = new LocationPayload("slug2", "New Location");
+
+        var mvcResponse = mockMvc.perform(put(uri + "/{id}", oldLocation.getId())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(testLocation1)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name").value("Paris"))
-                .andExpect(jsonPath("$.slug").value("paris"));
+                        .content(objectMapper.writeValueAsString(newPayload)))
+                .andExpectAll(
+                        status().isOk(),
+                        content().contentType(MediaType.APPLICATION_JSON))
+                .andReturn()
+                .getResponse();
+
+        var newLocation = objectMapper.readValue(mvcResponse.getContentAsString(), Location.class);
+
+        assertThat(newLocation.getId()).isEqualTo(oldLocation.getId());
+        assertThat(newLocation.getSlug()).isEqualTo(newPayload.slug());
+        assertThat(newLocation.getName()).isEqualTo(newPayload.name());
     }
 
-    @Test
-    public void testUpdateLocation_NotFound() throws Exception {
-        Mockito.when(locationService.updateLocation(eq("berlin"), any(Location.class))).thenReturn(false);
+    @ParameterizedTest
+    @MethodSource("invalidLocationPayloads")
+    void updateLocation_badRequest(LocationPayload locationPayload) throws Exception {
+        var oldLocation = locationService.createLocation("slug1", "Old Location");
 
-        mockMvc.perform(put(BASE_URL + "/berlin")
+        mockMvc.perform(put(uri + "/{id}", oldLocation.getId())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(testLocation1)))
-                .andExpect(status().isNotFound());
+                        .content(objectMapper.writeValueAsString(locationPayload)))
+                .andExpectAll(
+                        status().isBadRequest());
     }
 
     @Test
-    public void testDeleteLocation_Success() throws Exception {
-        Mockito.when(locationService.deleteLocation("paris")).thenReturn(true);
+    void updateLocation_notFound() throws Exception {
+        LocationPayload newPayload = new LocationPayload("slug2", "New Location");
 
-        mockMvc.perform(delete(BASE_URL + "/paris"))
+        var mvcResponse = mockMvc.perform(put(uri + "/88")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(newPayload)))
+                .andExpectAll(
+                        status().isNotFound(),
+                        content().contentType(MediaType.APPLICATION_PROBLEM_JSON));
+    }
+
+    @Test
+    void deleteLocation_success() throws Exception {
+        var oldLocation = locationService.createLocation("slug1", "Old Location");
+
+        mockMvc.perform(delete(uri + "/" + oldLocation.getId()))
                 .andExpect(status().isNoContent());
+
+        assertThatThrownBy(() -> locationService.getLocationById(oldLocation.getId()))
+                .isInstanceOf(LocationNotFoundException.class)
+                .hasMessage("location.not_found");
     }
 
     @Test
-    public void testDeleteLocation_NotFound() throws Exception {
-        Mockito.when(locationService.deleteLocation("berlin")).thenReturn(false);
-
-        mockMvc.perform(delete(BASE_URL + "/berlin"))
-                .andExpect(status().isNotFound());
+    void deleteLocation_notFound() throws Exception {
+        mockMvc.perform(delete(uri + "/88"))
+                .andExpectAll(
+                        status().isNotFound(),
+                        content().contentType(MediaType.APPLICATION_PROBLEM_JSON));
     }
 }
-
-// ls7
