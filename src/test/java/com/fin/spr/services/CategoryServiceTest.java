@@ -1,6 +1,8 @@
 package com.fin.spr.services;
 
+import com.fin.spr.interfaces.service.observer.Subject;
 import com.fin.spr.models.Category;
+import com.fin.spr.repository.history.CategoryHistory;
 import com.fin.spr.storage.InMemoryStorage;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,6 +23,12 @@ class CategoryServiceTest {
 
     @Mock
     private InMemoryStorage<Category, Integer> categoryStorage;
+
+    @Mock
+    private Subject messagePublisher;
+
+    @Mock
+    private CategoryHistory categoryHistory;
 
     @BeforeEach
     void setUp() {
@@ -54,6 +62,7 @@ class CategoryServiceTest {
     @Test
     void testCreateCategory() {
         Category category = new Category(1, "Slug 1", "Name 1");
+
 
         categoryService.createCategory(category);
 
@@ -93,6 +102,3 @@ class CategoryServiceTest {
         verify(categoryStorage, times(1)).delete(2);
     }
 }
-
-
-// ls7
