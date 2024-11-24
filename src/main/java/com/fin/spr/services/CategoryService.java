@@ -3,6 +3,8 @@ package com.fin.spr.services;
 import com.fin.spr.interfaces.service.ICategoryService;
 import com.fin.spr.interfaces.service.observer.Subject;
 import com.fin.spr.models.Category;
+import com.fin.spr.models.CrudAction;
+import com.fin.spr.repository.history.CategoryHistory;
 import com.fin.spr.storage.InMemoryStorage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,12 +23,16 @@ public class CategoryService implements ICategoryService {
 
     private final InMemoryStorage<Category, Integer> categoryStorage;
     private final Subject messagePublisher;
+    private final CategoryHistory categoryHistory;
 
 
     @Autowired
-    public CategoryService(InMemoryStorage<Category, Integer> categoryStorage, Subject messagePublisher) {
+    public CategoryService(InMemoryStorage<Category, Integer> categoryStorage,
+                           Subject messagePublisher,
+                           CategoryHistory categoryHistory) {
         this.categoryStorage = categoryStorage;
         this.messagePublisher = messagePublisher;
+        this.categoryHistory = categoryHistory;
     }
 
     /**
@@ -59,6 +65,7 @@ public class CategoryService implements ICategoryService {
     public void createCategory(Category category) {
         categoryStorage.create(category.getId(), category);
         messagePublisher.notifyUpdate("Category created: " + category.getName());
+        categoryHistory.add(category.save(CrudAction.CREATE));
     }
 
     /**
@@ -73,6 +80,7 @@ public class CategoryService implements ICategoryService {
         boolean updated = categoryStorage.update(id, category);
         if (updated) {
             messagePublisher.notifyUpdate("Category updated: " + category.getName());
+            categoryHistory.add(category.save(CrudAction.UPDATE));
         }
         return updated;
     }
@@ -85,9 +93,11 @@ public class CategoryService implements ICategoryService {
      */
     @Override
     public boolean deleteCategory(Integer id) {
+        var deleteCategoty = categoryStorage.getById(id);
         boolean deleted = categoryStorage.delete(id);
         if (deleted) {
             messagePublisher.notifyUpdate("Category deleted with ID: " + id);
+            deleteCategoty.ifPresent(category -> categoryHistory.add(category.save(CrudAction.DELETE)));
         }
         return deleted;
     }

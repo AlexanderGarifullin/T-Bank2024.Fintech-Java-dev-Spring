@@ -1,5 +1,6 @@
 package com.fin.spr.models;
 
+import com.fin.spr.models.memento.CategoryMemento;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -24,4 +25,14 @@ public class Category {
      * The name of the category.
      */
     private String name;
+
+    public CategoryMemento save(CrudAction action) {
+        return new CategoryMemento(id, slug, name, action, System.currentTimeMillis());
+    }
+
+    public void restore(CategoryMemento memento) {
+        this.id = memento.getId();
+        this.slug = memento.getSlug();
+        this.name = memento.getName();
+    }
 }

@@ -3,6 +3,8 @@ package com.fin.spr.models;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.fin.spr.models.memento.CategoryMemento;
+import com.fin.spr.models.memento.LocationMemento;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -38,4 +40,15 @@ public class Location {
     @OneToMany(mappedBy = "location", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private List<Event> events;
+
+
+    public LocationMemento save(CrudAction action) {
+        return new LocationMemento(id, slug, name, action, System.currentTimeMillis());
+    }
+
+    public void restore(LocationMemento memento) {
+        this.id = memento.getId();
+        this.slug = memento.getSlug();
+        this.name = memento.getName();
+    }
 }
