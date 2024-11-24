@@ -1,6 +1,5 @@
 package com.fin.spr.repository.history;
 
-import com.fin.spr.models.Category;
 import com.fin.spr.models.memento.CategoryMemento;
 import org.springframework.stereotype.Component;
 

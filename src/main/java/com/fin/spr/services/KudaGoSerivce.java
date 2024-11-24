@@ -2,27 +2,16 @@ package com.fin.spr.services;
 
 import com.fin.spr.annotations.LogExecutionTime;
 import com.fin.spr.command.DataLoaderInvoker;
-import com.fin.spr.command.commands.CategoryDataLoaderCommand;
-import com.fin.spr.command.commands.LocationDataLoaderCommand;
-import com.fin.spr.controllers.payload.LocationPayload;
 import com.fin.spr.models.Category;
-import com.fin.spr.models.Event;
 import com.fin.spr.models.Location;
-import com.fin.spr.models.response.EventResponse;
-import com.fin.spr.models.response.EventsResponse;
 import com.fin.spr.storage.InMemoryStorage;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
