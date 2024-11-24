@@ -1,6 +1,7 @@
 package com.fin.spr.services;
 
 import com.fin.spr.interfaces.service.ICategoryService;
+import com.fin.spr.interfaces.service.observer.Subject;
 import com.fin.spr.models.Category;
 import com.fin.spr.storage.InMemoryStorage;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,19 +20,13 @@ public class CategoryService implements ICategoryService {
 
 
     private final InMemoryStorage<Category, Integer> categoryStorage;
+    private final Subject messagePublisher;
 
-    /**
-     * Service class responsible for managing categories.
-     *
-     * <p>This class uses an in-memory storage mechanism for storing
-     * and retrieving {@link Category} entities. The storage is injected
-     * via constructor dependency injection.</p>
-     *
-     * @param categoryStorage the in-memory storage for {@link Category} entities.
-     */
+
     @Autowired
-    public CategoryService(InMemoryStorage<Category, Integer> categoryStorage) {
+    public CategoryService(InMemoryStorage<Category, Integer> categoryStorage, Subject messagePublisher) {
         this.categoryStorage = categoryStorage;
+        this.messagePublisher = messagePublisher;
     }
 
     /**
@@ -63,6 +58,7 @@ public class CategoryService implements ICategoryService {
     @Override
     public void createCategory(Category category) {
         categoryStorage.create(category.getId(), category);
+        messagePublisher.notifyUpdate("Category created: " + category.getName());
     }
 
     /**
@@ -74,7 +70,11 @@ public class CategoryService implements ICategoryService {
      */
     @Override
     public boolean updateCategory(Integer id, Category category) {
-        return categoryStorage.update(id, category);
+        boolean updated = categoryStorage.update(id, category);
+        if (updated) {
+            messagePublisher.notifyUpdate("Category updated: " + category.getName());
+        }
+        return updated;
     }
 
     /**
@@ -85,6 +85,10 @@ public class CategoryService implements ICategoryService {
      */
     @Override
     public boolean deleteCategory(Integer id) {
-        return categoryStorage.delete(id);
+        boolean deleted = categoryStorage.delete(id);
+        if (deleted) {
+            messagePublisher.notifyUpdate("Category deleted with ID: " + id);
+        }
+        return deleted;
     }
 }
