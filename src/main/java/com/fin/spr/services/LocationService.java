@@ -3,7 +3,10 @@ package com.fin.spr.services;
 import com.fin.spr.controllers.payload.LocationPayload;
 import com.fin.spr.exceptions.LocationNotFoundException;
 import com.fin.spr.interfaces.service.ILocationService;
+import com.fin.spr.interfaces.service.observer.Subject;
+import com.fin.spr.models.CrudAction;
 import com.fin.spr.models.Location;
+import com.fin.spr.repository.history.LocationHistory;
 import com.fin.spr.repository.jpa.LocationRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,10 +24,14 @@ import java.util.List;
 @Service
 public class LocationService implements ILocationService {
     private final LocationRepository locationRepository;
+    private final Subject messagePublisher;
+    private final LocationHistory locationHistory;
 
     @Autowired
-    public LocationService(LocationRepository locationRepository) {
+    public LocationService(LocationRepository locationRepository, Subject messagePublisher, LocationHistory locationHistory) {
         this.locationRepository = locationRepository;
+        this.messagePublisher = messagePublisher;
+        this.locationHistory = locationHistory;
     }
 
     public void initLocations(List<LocationPayload> locations) {
@@ -55,6 +62,8 @@ public class LocationService implements ILocationService {
         Location location = new Location();
         location.setName(name);
         location.setSlug(slug);
+        messagePublisher.notifyUpdate("Location created: " + location.getName());
+        locationHistory.add(location.save(CrudAction.CREATE));
         return locationRepository.save(location);
     }
 
@@ -65,13 +74,18 @@ public class LocationService implements ILocationService {
 
         oldLocation.setSlug(slug);
         oldLocation.setName(name);
+        messagePublisher.notifyUpdate("Location updated: " + oldLocation.getName());
+        locationHistory.add(oldLocation.save(CrudAction.UPDATE));
         return locationRepository.save(oldLocation);
     }
 
     @Override
     public void deleteLocation(Long id) throws LocationNotFoundException{
         if (locationRepository.existsById(id)) {
+            var location = getLocationById(id);
             locationRepository.deleteById(id);
+            messagePublisher.notifyUpdate("Location deleted with ID: " + id);
+            locationHistory.add(location.save(CrudAction.DELETE));
             return;
         }
         throw new LocationNotFoundException(id);
