@@ -20,18 +20,19 @@ import java.util.List;
 @Slf4j
 public class LocationDataLoaderCommand implements DataLoaderCommand {
 
-    private static final String Fields = "title,dates,price,is_free,location";
+    private static final String fields = "title,dates,price,is_free,location";
 
     @Value("${kudago.api.locations.url}")
-    private String LOCATIONS_API_URL;
+    private String locationsApiUrl;
 
     @Value("${kudago.api.events.url}")
-    private String EVENTS_API_URL;
+    private String eventsApiUrl;
+
     @Value("${kudago.limits.events.page_size}")
-    private int PAGE_SIZE;
+    private int pageSize;
 
     @Value("${kudago.limits.events.max_page}")
-    private int MAX_PAGE;
+    private int maxPage;
 
     private final RestClient restClient;
     private final LocationService locationService;
@@ -53,7 +54,7 @@ public class LocationDataLoaderCommand implements DataLoaderCommand {
 
     private void initLocations() {
         List<LocationPayload> locations = restClient.get()
-                .uri(LOCATIONS_API_URL)
+                .uri(locationsApiUrl)
                 .retrieve()
                 .body(new ParameterizedTypeReference<>() {});
         if (locations != null) {
@@ -82,7 +83,7 @@ public class LocationDataLoaderCommand implements DataLoaderCommand {
     private List<EventsResponse> fetchAllEvents(){
         int page = 1;
         List<EventsResponse> eventsResponses = new ArrayList<>();
-        while (page <= MAX_PAGE) {
+        while (page <= maxPage) {
             var events = fetchEvents(page++);
             if (events == null) break;
             eventsResponses.add(events);
@@ -94,10 +95,10 @@ public class LocationDataLoaderCommand implements DataLoaderCommand {
         try {
             var response = restClient.get()
                     .uri(uriBuilder -> uriBuilder
-                            .path(EVENTS_API_URL)
+                            .path(eventsApiUrl)
                             .queryParam("page", page)
-                            .queryParam("page_size", PAGE_SIZE)
-                            .queryParam("fields", Fields)
+                            .queryParam("page_size", pageSize)
+                            .queryParam("fields", fields)
                             .build())
                     .retrieve()
                     .toEntity(EventsResponse.class);

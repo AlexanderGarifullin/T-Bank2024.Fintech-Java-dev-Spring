@@ -17,7 +17,7 @@ public class CategoryDataLoaderCommand implements DataLoaderCommand {
     private final RestClient restClient;
 
     @Value("${kudago.api.categories.url}")
-    private String CATEGORIES_API_URL;
+    private String categoriesApiUrl;
 
     private final InMemoryStorage<Category, Integer> categoryStorage;
 
@@ -34,7 +34,7 @@ public class CategoryDataLoaderCommand implements DataLoaderCommand {
 
     private void initCategories() {
         List<Category> categories = restClient.get()
-                .uri(CATEGORIES_API_URL)
+                .uri(categoriesApiUrl)
                 .retrieve()
                 .body(new ParameterizedTypeReference<>() {
                 });
