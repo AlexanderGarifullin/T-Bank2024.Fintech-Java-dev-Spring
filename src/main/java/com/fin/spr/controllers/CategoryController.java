@@ -8,6 +8,7 @@ import com.fin.spr.models.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -74,6 +75,7 @@ public class CategoryController implements ICategoryController {
      *         Returns HTTP 409 if the category already exists.
      */
     @PostMapping
+    @PreAuthorize("hasAuthority('ADMIN')")
     @Override
     public ResponseEntity<Category> createCategory(@RequestBody Category category) {
         try {
@@ -92,6 +94,7 @@ public class CategoryController implements ICategoryController {
      * @return a ResponseEntity containing the updated category or an HTTP 404 status code if not found.
      */
     @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('ADMIN')")
     @Override
     public ResponseEntity<Category> updateCategory(@PathVariable Integer id, @RequestBody Category category) {
         boolean updated = categoryService.updateCategory(id, category);
@@ -106,6 +109,7 @@ public class CategoryController implements ICategoryController {
      *         Returns HTTP 204 if the category was deleted, or HTTP 404 if not found.
      */
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('ADMIN')")
     @Override
     public ResponseEntity<Void> deleteCategory(@PathVariable Integer id) {
         boolean deleted = categoryService.deleteCategory(id);
