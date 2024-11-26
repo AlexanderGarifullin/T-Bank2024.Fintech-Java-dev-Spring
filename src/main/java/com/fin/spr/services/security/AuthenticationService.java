@@ -1,10 +1,12 @@
 package com.fin.spr.services.security;
 
-import com.fin.spr.auth.AuthenticationResponse;
+import com.fin.spr.auth.JwtAuthenticationResponse;
 import com.fin.spr.auth.RegistrationRequest;
 import com.fin.spr.exceptions.UserAlreadyRegisterException;
 import com.fin.spr.models.security.Role;
+import com.fin.spr.models.security.Token;
 import com.fin.spr.models.security.User;
+import com.fin.spr.repository.security.TokenRepository;
 import com.fin.spr.repository.security.UserRepository;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
@@ -16,9 +18,11 @@ import org.springframework.stereotype.Service;
 public class AuthenticationService {
 
     private final UserRepository userRepository;
+    private final TokenRepository tokenRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
 
-    public AuthenticationResponse register(@NotNull RegistrationRequest registrationRequest) {
+    public JwtAuthenticationResponse register(@NotNull RegistrationRequest registrationRequest) {
         userRepository.findByLogin(registrationRequest.login())
                 .ifPresent(user  -> {
                     throw new UserAlreadyRegisterException(user.getLogin());
@@ -32,7 +36,15 @@ public class AuthenticationService {
                 .build();
         userRepository.save(user);
 
-        return new AuthenticationResponse();
+        String jwtToken = jwtService.generateToken(user, false);
+
+        Token token = Token.builder()
+                .token(jwtToken)
+                .user(user)
+                .build();
+        tokenRepository.save(token);
+
+        return new JwtAuthenticationResponse(jwtToken);
     }
 }
 

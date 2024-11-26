@@ -28,3 +28,10 @@ app:
   init:
     fixed-thread-pool-size: 2
     schedule-duration: PT1H
+
+
+jwt:
+  secret: mysuperSecretPasswordformysuperbestAppwithsuperloginandBisness123Good2wow3magic1
+  short: 600 # 10 minutes
+  long: 2592000 # 30 days
+
