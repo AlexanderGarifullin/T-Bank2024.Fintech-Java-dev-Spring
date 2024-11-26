@@ -14,7 +14,7 @@ public class UserController {
     private final AuthenticationService authenticationService;
 
     @PostMapping("/register")
-    public AuthenticationResponse register(@RequestBody RegistrationRequest registrationRequest) {
+    public JwtAuthenticationResponse register(@RequestBody RegistrationRequest registrationRequest) {
         return authenticationService.register(registrationRequest);
     }
 }
