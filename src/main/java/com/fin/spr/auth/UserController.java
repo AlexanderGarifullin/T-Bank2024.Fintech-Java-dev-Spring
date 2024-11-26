@@ -1,15 +1,13 @@
 package com.fin.spr.auth;
 
 import com.fin.spr.controllers.payload.security.AuthenticationPayload;
+import com.fin.spr.controllers.payload.security.ChangePasswordPayload;
 import com.fin.spr.controllers.payload.security.RegistrationPayload;
 import com.fin.spr.services.security.AuthenticationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -30,6 +28,15 @@ public class UserController {
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(Authentication authentication) {
         authenticationService.logout(authentication);
+        return ResponseEntity.ok().build();
+    }
+
+    @PatchMapping("change-password")
+    public ResponseEntity<Void> changePassword(
+            @RequestBody ChangePasswordPayload changePasswordRequest,
+            Authentication authentication
+    ) {
+        authenticationService.changePassword(changePasswordRequest, authentication);
         return ResponseEntity.ok().build();
     }
 }

@@ -3,7 +3,9 @@ package com.fin.spr.services.security;
 import com.fin.spr.auth.JwtAuthenticationResponse;
 import com.fin.spr.auth.UserDetails;
 import com.fin.spr.controllers.payload.security.AuthenticationPayload;
+import com.fin.spr.controllers.payload.security.ChangePasswordPayload;
 import com.fin.spr.controllers.payload.security.RegistrationPayload;
+import com.fin.spr.exceptions.InvalidTwoFactorCodeException;
 import com.fin.spr.exceptions.UserAlreadyRegisterException;
 import com.fin.spr.exceptions.UserNotFoundException;
 import com.fin.spr.models.security.Role;
@@ -81,7 +83,24 @@ public class AuthenticationService {
 
     public void logout(@NotNull Authentication authentication) {
         var userDetails = (UserDetails) authentication.getPrincipal();
+        var user = userDetails.getUser();
 
+        var tokens = tokenRepository.findAllByUserAndRevoked(user, false);
+        tokens.forEach(token -> token.setRevoked(true));
+        tokenRepository.saveAll(tokens);
+    }
+
+    public void changePassword(@NotNull ChangePasswordPayload changePasswordPayload,
+                               @NotNull Authentication authentication) {
+        if (!changePasswordPayload.twoFactorCode().equals("0000")) {
+            throw new InvalidTwoFactorCodeException();
+        }
+
+        var userDetails = (UserDetails) authentication.getPrincipal();
+        var user = userDetails.getUser();
+
+        user.setHashedPassword(passwordEncoder.encode(changePasswordPayload.newPassword()));
+        userRepository.save(user);
     }
 }
 

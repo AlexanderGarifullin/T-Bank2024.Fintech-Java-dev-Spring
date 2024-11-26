@@ -1,6 +1,8 @@
 package com.fin.spr.auth;
 
+import com.fin.spr.exceptions.TokenRevokedException;
 import com.fin.spr.services.security.JwtService;
+import com.fin.spr.services.security.TokenService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -23,13 +25,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     public static final String BEARER_PREFIX = "Bearer ";
 
     private final JwtService jwtService;
+    private final TokenService tokenService;
 
     private final UserDetailsService userDetailsService;
 
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request,
                                     @NonNull HttpServletResponse response,
-                                    @NonNull FilterChain filterChain) throws ServletException, IOException {
+                                    @NonNull FilterChain filterChain)
+            throws ServletException, IOException, TokenRevokedException {
         var authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
 
         if (authHeader == null || !authHeader.startsWith(BEARER_PREFIX)) {
@@ -38,6 +42,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         var jwt = authHeader.substring(BEARER_PREFIX.length());
+
+        if (tokenService.isTokenRevoked(jwt)) throw new TokenRevokedException(jwt);
+
         var userLogin = jwtService.extractUserLogin(jwt);
 
         var userDetails = userDetailsService.loadUserByUsername(userLogin);
