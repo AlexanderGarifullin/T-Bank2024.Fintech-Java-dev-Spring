@@ -1,7 +1,9 @@
 package com.fin.spr.services.security;
 
 import com.fin.spr.auth.JwtAuthenticationResponse;
-import com.fin.spr.auth.RegistrationRequest;
+import com.fin.spr.auth.UserDetails;
+import com.fin.spr.controllers.payload.security.AuthenticationPayload;
+import com.fin.spr.controllers.payload.security.RegistrationPayload;
 import com.fin.spr.exceptions.UserAlreadyRegisterException;
 import com.fin.spr.exceptions.UserNotFoundException;
 import com.fin.spr.models.security.Role;
@@ -26,7 +28,7 @@ public class AuthenticationService {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
 
-    public JwtAuthenticationResponse register(@NotNull RegistrationRequest registrationRequest) {
+    public JwtAuthenticationResponse register(@NotNull RegistrationPayload registrationRequest) {
         userRepository.findByLogin(registrationRequest.login())
                 .ifPresent(user -> {
                     throw new UserAlreadyRegisterException(user.getLogin());
@@ -38,33 +40,34 @@ public class AuthenticationService {
                 .role(Role.USER)
                 .hashedPassword(passwordEncoder.encode(registrationRequest.password()))
                 .build();
-        userRepository.save(user);
 
-        String jwtToken = jwtService.generateToken(user, false);
+        String jwtToken = jwtService.generateToken(new UserDetails(user), false);
 
         Token token = Token.builder()
                 .token(jwtToken)
                 .user(user)
                 .build();
+
+        userRepository.save(user);
         tokenRepository.save(token);
 
         return new JwtAuthenticationResponse(jwtToken);
     }
 
-    public JwtAuthenticationResponse login(@NotNull RegistrationRequest registrationRequest) {
+    public JwtAuthenticationResponse login(@NotNull AuthenticationPayload authenticationPayload) {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
-                registrationRequest.login(),
-                registrationRequest.password()
+                authenticationPayload.login(),
+                authenticationPayload.password()
         ));
 
-        var user = userRepository.findByLogin(registrationRequest.login())
-                .orElseThrow(() -> new UserNotFoundException(registrationRequest.login()));
+        var user = userRepository.findByLogin(authenticationPayload.login())
+                .orElseThrow(() -> new UserNotFoundException(authenticationPayload.login()));
 
         var tokens = tokenRepository.findAllByUserAndRevoked(user, false);
         tokens.forEach(token -> token.setRevoked(true));
         tokenRepository.saveAll(tokens);
 
-        String jwtToken = jwtService.generateToken(user, false);
+        String jwtToken = jwtService.generateToken(new UserDetails(user), authenticationPayload.rememberMe());
 
         Token token = Token.builder()
                 .token(jwtToken)

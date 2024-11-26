@@ -1,5 +1,7 @@
 package com.fin.spr.auth;
 
+import com.fin.spr.controllers.payload.security.AuthenticationPayload;
+import com.fin.spr.controllers.payload.security.RegistrationPayload;
 import com.fin.spr.services.security.AuthenticationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,12 +16,12 @@ public class UserController {
     private final AuthenticationService authenticationService;
 
     @PostMapping("/register")
-    public JwtAuthenticationResponse register(@RequestBody RegistrationRequest registrationRequest) {
+    public JwtAuthenticationResponse register(@RequestBody RegistrationPayload registrationRequest) {
         return authenticationService.register(registrationRequest);
     }
 
     @PostMapping("/login")
-    public JwtAuthenticationResponse login(@RequestBody RegistrationRequest registrationRequest) {
-        return authenticationService.login(registrationRequest);
+    public JwtAuthenticationResponse login(@RequestBody AuthenticationPayload authenticationPayload) {
+        return authenticationService.login(authenticationPayload);
     }
 }
