@@ -37,10 +37,8 @@ public class SecurityConfig {
                     corsConfiguration.setAllowCredentials(true);
                     return corsConfiguration;
                 }))
-                // Настройка доступа к конечным точкам
                 .authorizeHttpRequests(request -> request
-                        // Можно указать конкретный путь, * - 1 уровень вложенности, ** - любое количество уровней вложенности
-                        .requestMatchers("/api/v1/auth/register", "/api/v1/auth/login").permitAll()
+                       .requestMatchers("/api/v1/auth/register", "/api/v1/auth/login").permitAll()
                         .requestMatchers("/swagger-ui/**", "/swagger-resources/*", "/v3/api-docs/**").permitAll()
                         .requestMatchers("/endpoint", "/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated())
