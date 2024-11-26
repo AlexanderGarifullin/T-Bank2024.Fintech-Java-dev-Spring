@@ -1,20 +1,16 @@
 package com.fin.spr.auth;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fin.spr.BaseIntegrationTest;
 import com.fin.spr.controllers.payload.security.AuthenticationPayload;
 import com.fin.spr.controllers.payload.security.ChangePasswordPayload;
 import com.fin.spr.controllers.payload.security.RegistrationPayload;
-import com.fin.spr.models.Event;
 import com.fin.spr.repository.security.TokenRepository;
 import com.fin.spr.repository.security.UserRepository;
-import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 
-import java.io.UnsupportedEncodingException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
