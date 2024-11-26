@@ -3,3 +3,5 @@ databaseChangeLog:
       file: db/changelog/kudago-changelog.sql
   - include:
       file: db/changelog/security-changelog.sql
+  - include:
+      file: db/changelog/security-tokens-changelog.sql
