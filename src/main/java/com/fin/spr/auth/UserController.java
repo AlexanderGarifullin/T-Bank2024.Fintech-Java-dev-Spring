@@ -4,6 +4,8 @@ import com.fin.spr.controllers.payload.security.AuthenticationPayload;
 import com.fin.spr.controllers.payload.security.RegistrationPayload;
 import com.fin.spr.services.security.AuthenticationService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,5 +25,11 @@ public class UserController {
     @PostMapping("/login")
     public JwtAuthenticationResponse login(@RequestBody AuthenticationPayload authenticationPayload) {
         return authenticationService.login(authenticationPayload);
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(Authentication authentication) {
+        authenticationService.logout(authentication);
+        return ResponseEntity.ok().build();
     }
 }
