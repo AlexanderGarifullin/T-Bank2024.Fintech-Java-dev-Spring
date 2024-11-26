@@ -8,6 +8,7 @@ import lombok.*;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(exclude = "user")
 @Entity
 @Table(name = "t_tokens", schema = "security")
 public class Token {

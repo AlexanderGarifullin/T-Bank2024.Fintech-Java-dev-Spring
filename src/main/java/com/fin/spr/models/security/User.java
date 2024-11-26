@@ -15,6 +15,7 @@ import java.util.List;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(exclude = "tokens")
 @Entity
 @Table(name = "t_users", schema = "security")
 public class User {
