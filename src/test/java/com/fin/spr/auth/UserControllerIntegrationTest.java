@@ -4,6 +4,7 @@ import com.fin.spr.BaseIntegrationTest;
 import com.fin.spr.controllers.payload.security.AuthenticationPayload;
 import com.fin.spr.controllers.payload.security.ChangePasswordPayload;
 import com.fin.spr.controllers.payload.security.RegistrationPayload;
+import com.fin.spr.models.security.User;
 import com.fin.spr.repository.security.TokenRepository;
 import com.fin.spr.repository.security.UserRepository;
 import org.junit.jupiter.api.AfterEach;
@@ -30,12 +31,6 @@ class UserControllerIntegrationTest extends BaseIntegrationTest {
     @Autowired
     private TokenRepository tokenRepository;
 
-    @AfterEach
-    void cleanDatabase() {
-        userRepository.deleteAll();
-        tokenRepository.deleteAll();
-    }
-
     @Test
     public void register_success() throws Exception {
         RegistrationPayload payload = RegistrationPayload.builder()
@@ -57,6 +52,8 @@ class UserControllerIntegrationTest extends BaseIntegrationTest {
 
                 () -> assertThat(user.isPresent()).isTrue()
         );
+
+        deleteUserFromDb(user.get());
     }
 
     @Test
@@ -103,6 +100,8 @@ class UserControllerIntegrationTest extends BaseIntegrationTest {
 
                 () -> assertThat(oldToken.get()).isNotEqualTo(newToken.get())
         );
+
+        deleteUserFromDb(userRepository.findByLogin("register-login").get());
     }
 
     @Test
@@ -128,6 +127,8 @@ class UserControllerIntegrationTest extends BaseIntegrationTest {
                 () -> assertThat(oldToken.isPresent()).isTrue(),
                 () -> assertThat(oldToken.get().isRevoked()).isTrue()
         );
+
+        deleteUserFromDb(userRepository.findByLogin("register-login").get());
     }
 
     @Test
@@ -201,6 +202,8 @@ class UserControllerIntegrationTest extends BaseIntegrationTest {
                 () -> assertThat(loginUser.isPresent()).isTrue(),
                 () -> assertThat(loginUser.get()).isEqualTo(newUser.get())
         );
+
+        deleteUserFromDb(loginUser.get());
     }
 
     private JwtAuthenticationResponse register(RegistrationPayload payload) throws Exception {
@@ -216,4 +219,7 @@ class UserControllerIntegrationTest extends BaseIntegrationTest {
         return objectMapper.readValue(response.getContentAsString(), JwtAuthenticationResponse.class);
     }
 
+    private void deleteUserFromDb(User user) {
+        userRepository.delete(user);
+    }
 }

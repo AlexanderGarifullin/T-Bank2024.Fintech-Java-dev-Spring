@@ -6,14 +6,19 @@ import com.fin.spr.services.security.AuthenticationService;
 import liquibase.Contexts;
 import liquibase.Liquibase;
 import liquibase.database.Database;
+import liquibase.database.DatabaseFactory;
 import liquibase.database.jvm.JdbcConnection;
+import liquibase.exception.DatabaseException;
 import liquibase.exception.LiquibaseException;
 import liquibase.resource.ClassLoaderResourceAccessor;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.testcontainers.containers.PostgreSQLContainer;
 
@@ -26,7 +31,10 @@ import java.sql.SQLException;
 @ActiveProfiles("test")
 public abstract class BaseIntegrationTest {
 
-    private PostgreSQLContainer<?> postgreSQLContainer;
+    private static final PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:17")
+            .withUsername("postgres")
+            .withPassword("123")
+            .withDatabaseName("testdb");
 
     @Autowired
     protected MockMvc mockMvc;
@@ -52,45 +60,29 @@ public abstract class BaseIntegrationTest {
             false
     );
 
-    void setUp() {
-        postgreSQLContainer = new PostgreSQLContainer<>("postgres:17")
-                .withDatabaseName("testdb")
-                .withUsername("test")
-                .withPassword("test");
-        postgreSQLContainer.start();
+    private static void runLiquibaseMigrations() throws Exception {
+        Connection connection = DriverManager.getConnection(
+                postgres.getJdbcUrl(), postgres.getUsername(), postgres.getPassword());
 
+        Database database = DatabaseFactory.getInstance()
+                .findCorrectDatabaseImplementation(new JdbcConnection(connection));
 
-        System.setProperty("spring.datasource.url", postgreSQLContainer.getJdbcUrl());
-        System.setProperty("spring.datasource.username", postgreSQLContainer.getUsername());
-        System.setProperty("spring.datasource.password", postgreSQLContainer.getPassword());
-
-        try (Connection connection = DriverManager.getConnection(
-                postgreSQLContainer.getJdbcUrl(),
-                postgreSQLContainer.getUsername(),
-                postgreSQLContainer.getPassword()
-        )) {
-            runLiquibaseMigrations(connection);
-        } catch (LiquibaseException | SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-
-    private void runLiquibaseMigrations(Connection connection) throws LiquibaseException {
-        // Настраиваем Liquibase для выполнения миграций
-        Database database = new liquibase.database.core.PostgresDatabase();
-        database.setConnection(new JdbcConnection(connection));
-
-        // Указываем основной файл миграций
-        String changeLogFile = System.getProperty("spring.liquibase.change-log", "db/changelog/db.changelog-master.yaml");
+        String changeLogFile = System.getProperty("spring.liquibase.change-log", "db/changelog/db.changelog-test.yaml");
 
         try (Liquibase liquibase = new Liquibase(changeLogFile, new ClassLoaderResourceAccessor(), database)) {
             liquibase.update(new Contexts());
         }
     }
 
+    @DynamicPropertySource
+    static void postgresqlProperties(DynamicPropertyRegistry registry) throws Exception {
+        postgres.start();
+        runLiquibaseMigrations();
+        registry.add("spring.datasource.url", postgres::getJdbcUrl);
+    }
+
     @BeforeEach
-    public void getToken() {
+    public void getToken() throws Exception {
         if (userBearerToken == null) {
             userBearerToken = "Bearer %s".formatted(authenticationService.login(userRequest).token());
         }
