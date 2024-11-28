@@ -2,12 +2,15 @@ name: CI
 
 on: push
 
+permissions:
+  contents: read
+  packages: write
+  pull-requests: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
     name: Build
-    permissions:
-      pull-requests: write
 
     steps:
       - uses: actions/checkout@v4
