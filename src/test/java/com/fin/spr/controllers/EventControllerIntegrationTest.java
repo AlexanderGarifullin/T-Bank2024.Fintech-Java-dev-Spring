@@ -72,7 +72,8 @@ class EventControllerIntegrationTest extends BaseIntegrationTest {
         var createdEvent = eventService.createEvent(eventPayload.name(), eventPayload.startDate(),
                 eventPayload.price(), eventPayload.free(), createdLocation.getId());
 
-        var mvcResponse = mockMvc.perform(get(events_uri))
+        var mvcResponse = mockMvc.perform(get(events_uri)
+                .header("Authorization", userBearerToken))
                 .andExpectAll(
                         status().isOk(),
                         content().contentType(MediaType.APPLICATION_JSON))
@@ -95,7 +96,8 @@ class EventControllerIntegrationTest extends BaseIntegrationTest {
         var createdEvent = eventService.createEvent(eventPayload.name(), eventPayload.startDate(),
                 eventPayload.price(), eventPayload.free(), createdLocation.getId());
 
-        var mvcResponse = mockMvc.perform(get(events_uri + "/{id}", createdEvent.getId()))
+        var mvcResponse = mockMvc.perform(get(events_uri + "/{id}", createdEvent.getId())
+                .header("Authorization", userBearerToken))
                 .andExpectAll(
                         status().isOk(),
                         content().contentType(MediaType.APPLICATION_JSON))
@@ -112,7 +114,8 @@ class EventControllerIntegrationTest extends BaseIntegrationTest {
 
     @Test
     void getEventById_notFound() throws Exception {
-        mockMvc.perform(get(events_uri + "/88"))
+        mockMvc.perform(get(events_uri + "/88")
+                .header("Authorization", userBearerToken))
                 .andExpectAll(
                         status().isNotFound(),
                         content().contentType(MediaType.APPLICATION_PROBLEM_JSON)
@@ -128,6 +131,7 @@ class EventControllerIntegrationTest extends BaseIntegrationTest {
                 eventPayload.free(), createdLocation.getId());
 
         var mvcResponse = mockMvc.perform(post(events_uri)
+                        .header("Authorization", userBearerToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(eventPayload)))
                 .andExpectAll(
@@ -168,6 +172,7 @@ class EventControllerIntegrationTest extends BaseIntegrationTest {
     @MethodSource("invalidEventPayloads")
     void createEvent_badRequest(EventPayload badEventPayload) throws Exception {
         mockMvc.perform(post(events_uri)
+                        .header("Authorization", userBearerToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(badEventPayload)))
                 .andExpectAll(
@@ -180,6 +185,7 @@ class EventControllerIntegrationTest extends BaseIntegrationTest {
                 eventPayload.free(), -1L);
 
         var mvcResponse = mockMvc.perform(post(events_uri)
+                        .header("Authorization", userBearerToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(eventPayload)))
                 .andExpectAll(
@@ -200,6 +206,7 @@ class EventControllerIntegrationTest extends BaseIntegrationTest {
                 createdLocation.getId());
 
         var mvcResponse = mockMvc.perform(put(events_uri + "/{id}", createdEvent.getId())
+                        .header("Authorization", userBearerToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(eventPayload)))
                 .andExpectAll(
@@ -225,6 +232,7 @@ class EventControllerIntegrationTest extends BaseIntegrationTest {
                 eventPayload.price(), eventPayload.free(), createdLocation.getId());
 
         mockMvc.perform(put(events_uri + "/{id}", createdEvent.getId())
+                        .header("Authorization", userBearerToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(badEventPayload)))
                 .andExpectAll(
@@ -234,6 +242,7 @@ class EventControllerIntegrationTest extends BaseIntegrationTest {
     @Test
     void updateEvent_notFound() throws Exception {
         var mvcResponse = mockMvc.perform(put(events_uri + "/8888")
+                        .header("Authorization", userBearerToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(eventPayload)))
                 .andExpectAll(
@@ -248,7 +257,8 @@ class EventControllerIntegrationTest extends BaseIntegrationTest {
         var createdEvent = eventService.createEvent(eventPayload.name(), eventPayload.startDate(),
                 eventPayload.price(), eventPayload.free(), createdLocation.getId());
 
-        mockMvc.perform(delete(events_uri + "/" + createdEvent.getId()))
+        mockMvc.perform(delete(events_uri + "/" + createdEvent.getId())
+                        .header("Authorization", userBearerToken))
                 .andExpect(status().isNoContent());
 
         assertThatThrownBy(() -> eventService.getEventById(createdEvent.getId()))
@@ -258,7 +268,8 @@ class EventControllerIntegrationTest extends BaseIntegrationTest {
 
     @Test
     void deleteEvent_notFound() throws Exception {
-        mockMvc.perform(delete(events_uri + "/88888"))
+        mockMvc.perform(delete(events_uri + "/88888")
+                        .header("Authorization", userBearerToken))
                 .andExpectAll(
                         status().isNotFound(),
                         content().contentType(MediaType.APPLICATION_PROBLEM_JSON));
@@ -270,7 +281,8 @@ class EventControllerIntegrationTest extends BaseIntegrationTest {
         var createdEvent = eventService.createEvent(eventPayload.name(), eventPayload.startDate(),
                 eventPayload.price(), eventPayload.free(), createdLocation.getId());
 
-        var mvcResponse = mockMvc.perform(get(locations_uri + "/" + createdLocation.getId()))
+        var mvcResponse = mockMvc.perform(get(locations_uri + "/" + createdLocation.getId())
+                        .header("Authorization", userBearerToken))
                 .andExpectAll(
                         status().isOk(),
                         content().contentType(MediaType.APPLICATION_JSON))
@@ -292,6 +304,7 @@ class EventControllerIntegrationTest extends BaseIntegrationTest {
                 eventPayload.price(), eventPayload.free(), createdLocation.getId());
 
         var mvcResponse = mockMvc.perform(get(events_uri + "/filter")
+                        .header("Authorization", userBearerToken)
                         .param("name", createdEvent.getName())
                         .param("fromDate", createdEvent.getStartDate().minus(Duration.ofDays(1)).toString())
                         .param("toDate", createdEvent.getStartDate().plus(Duration.ofDays(1)).toString()))
@@ -317,7 +330,8 @@ class EventControllerIntegrationTest extends BaseIntegrationTest {
         var createdEvent = eventService.createEvent(eventPayload.name(), eventPayload.startDate(),
                 eventPayload.price(), eventPayload.free(), createdLocation.getId());
 
-        var mvcResponse = mockMvc.perform(get(events_uri + "/filter"))
+        var mvcResponse = mockMvc.perform(get(events_uri + "/filter")
+                        .header("Authorization", userBearerToken))
                  .andExpectAll(
                         status().isOk(),
                         content().contentType(MediaType.APPLICATION_JSON))
@@ -341,6 +355,7 @@ class EventControllerIntegrationTest extends BaseIntegrationTest {
                 eventPayload.price(), eventPayload.free(), createdLocation.getId());
 
         var mvcResponse = mockMvc.perform(get(events_uri + "/filter")
+                        .header("Authorization", userBearerToken)
                         .param("name", createdEvent.getName())
                         .param("fromDate", createdEvent.getStartDate().plus(Duration.ofDays(10)).toString()))
                 .andExpectAll(

@@ -45,7 +45,8 @@ class LocationControllerIntegrationTest extends BaseIntegrationTest {
         LocationPayload payload = new LocationPayload("slug1", "Test Location");
         var createdLocation = locationService.createLocation(payload.slug(), payload.name());
 
-        var mvcResponse = mockMvc.perform(get(uri))
+        var mvcResponse = mockMvc.perform(get(uri)
+                        .header("Authorization", userBearerToken))
                 .andExpectAll(
                         status().isOk(),
                         content().contentType(MediaType.APPLICATION_JSON))
@@ -67,7 +68,8 @@ class LocationControllerIntegrationTest extends BaseIntegrationTest {
        LocationPayload payload = new LocationPayload("slug1", "Test Location");
        var createdLocation = locationService.createLocation(payload.slug(), payload.name());
 
-       var mvcResponse = mockMvc.perform(get(uri + "/" + createdLocation.getId()))
+       var mvcResponse = mockMvc.perform(get(uri + "/" + createdLocation.getId())
+                       .header("Authorization", userBearerToken))
                .andExpectAll(
                        status().isOk(),
                        content().contentType(MediaType.APPLICATION_JSON))
@@ -81,7 +83,8 @@ class LocationControllerIntegrationTest extends BaseIntegrationTest {
 
     @Test
     void getLocationById_notFound() throws Exception {
-        mockMvc.perform(get(uri + "/88"))
+        mockMvc.perform(get(uri + "/88")
+                        .header("Authorization", userBearerToken))
                 .andExpectAll(
                   status().isNotFound(),
                   content().contentType(MediaType.APPLICATION_PROBLEM_JSON)
@@ -93,6 +96,7 @@ class LocationControllerIntegrationTest extends BaseIntegrationTest {
         LocationPayload payload = new LocationPayload("slug1", "Test Location");
 
         var mvcResponse = mockMvc.perform(post(uri)
+                        .header("Authorization", userBearerToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(payload)))
                 .andExpectAll(
@@ -129,6 +133,7 @@ class LocationControllerIntegrationTest extends BaseIntegrationTest {
     @MethodSource("invalidLocationPayloads")
     void createLocation_badRequest(LocationPayload locationPayload) throws Exception {
         mockMvc.perform(post(uri)
+                        .header("Authorization", userBearerToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(locationPayload)))
                 .andExpectAll(
@@ -142,6 +147,7 @@ class LocationControllerIntegrationTest extends BaseIntegrationTest {
         LocationPayload newPayload = new LocationPayload("slug2", "New Location");
 
         var mvcResponse = mockMvc.perform(put(uri + "/{id}", oldLocation.getId())
+                        .header("Authorization", userBearerToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(newPayload)))
                 .andExpectAll(
@@ -163,6 +169,7 @@ class LocationControllerIntegrationTest extends BaseIntegrationTest {
         var oldLocation = locationService.createLocation("slug1", "Old Location");
 
         mockMvc.perform(put(uri + "/{id}", oldLocation.getId())
+                        .header("Authorization", userBearerToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(locationPayload)))
                 .andExpectAll(
@@ -174,6 +181,7 @@ class LocationControllerIntegrationTest extends BaseIntegrationTest {
         LocationPayload newPayload = new LocationPayload("slug2", "New Location");
 
         var mvcResponse = mockMvc.perform(put(uri + "/88")
+                        .header("Authorization", userBearerToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(newPayload)))
                 .andExpectAll(
@@ -185,7 +193,8 @@ class LocationControllerIntegrationTest extends BaseIntegrationTest {
     void deleteLocation_success() throws Exception {
         var oldLocation = locationService.createLocation("slug1", "Old Location");
 
-        mockMvc.perform(delete(uri + "/" + oldLocation.getId()))
+        mockMvc.perform(delete(uri + "/" + oldLocation.getId())
+                        .header("Authorization", userBearerToken))
                 .andExpect(status().isNoContent());
 
         assertThatThrownBy(() -> locationService.getLocationById(oldLocation.getId()))
@@ -195,7 +204,8 @@ class LocationControllerIntegrationTest extends BaseIntegrationTest {
 
     @Test
     void deleteLocation_notFound() throws Exception {
-        mockMvc.perform(delete(uri + "/88"))
+        mockMvc.perform(delete(uri + "/88")
+                        .header("Authorization", userBearerToken))
                 .andExpectAll(
                         status().isNotFound(),
                         content().contentType(MediaType.APPLICATION_PROBLEM_JSON));

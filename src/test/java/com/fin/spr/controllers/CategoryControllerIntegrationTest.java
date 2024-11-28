@@ -1,5 +1,6 @@
 package com.fin.spr.controllers;
 
+import com.fin.spr.BaseIntegrationTest;
 import com.fin.spr.exceptions.EntityAlreadyExistsException;
 import com.fin.spr.models.Category;
 import com.fin.spr.services.CategoryService;
@@ -24,7 +25,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-public class CategoryControllerIntegrationTest {
+public class CategoryControllerIntegrationTest extends BaseIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -49,8 +50,8 @@ public class CategoryControllerIntegrationTest {
     @Test
     public void testGetAllCategories() throws Exception {
         Mockito.when(categoryService.getAllCategories()).thenReturn(Arrays.asList(testCategory1, testCategory2));
-
-        mockMvc.perform(get(BASE_URL))
+        mockMvc.perform(get(BASE_URL)
+                .header("Authorization", userBearerToken))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$[0].name").value("Museums"))
@@ -61,7 +62,8 @@ public class CategoryControllerIntegrationTest {
     public void testGetCategoryById_Success() throws Exception {
         Mockito.when(categoryService.getCategoryById(1)).thenReturn(Optional.of(testCategory1));
 
-        mockMvc.perform(get(BASE_URL + "/1"))
+        mockMvc.perform(get(BASE_URL + "/1")
+                .header("Authorization", userBearerToken))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.name").value("Museums"))
@@ -72,7 +74,8 @@ public class CategoryControllerIntegrationTest {
     public void testGetCategoryById_NotFound() throws Exception {
         Mockito.when(categoryService.getCategoryById(99)).thenReturn(Optional.empty());
 
-        mockMvc.perform(get(BASE_URL + "/99"))
+        mockMvc.perform(get(BASE_URL + "/99")
+                .header("Authorization", userBearerToken))
                 .andExpect(status().isNotFound());
     }
 
@@ -81,6 +84,7 @@ public class CategoryControllerIntegrationTest {
         Mockito.doNothing().when(categoryService).createCategory(any(Category.class));
 
         mockMvc.perform(post(BASE_URL)
+                        .header("Authorization", adminBearerToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(testCategory1)))
                 .andExpect(status().isCreated())
@@ -93,6 +97,7 @@ public class CategoryControllerIntegrationTest {
         Mockito.doThrow(new EntityAlreadyExistsException("Category already exists")).when(categoryService).createCategory(any(Category.class));
 
         mockMvc.perform(post(BASE_URL)
+                        .header("Authorization", adminBearerToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(testCategory1)))
                 .andExpect(status().isConflict());
@@ -103,6 +108,7 @@ public class CategoryControllerIntegrationTest {
         Mockito.when(categoryService.updateCategory(eq(1), any(Category.class))).thenReturn(true);
 
         mockMvc.perform(put(BASE_URL + "/1")
+                        .header("Authorization", adminBearerToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(testCategory1)))
                 .andExpect(status().isOk())
@@ -115,6 +121,7 @@ public class CategoryControllerIntegrationTest {
         Mockito.when(categoryService.updateCategory(eq(99), any(Category.class))).thenReturn(false);
 
         mockMvc.perform(put(BASE_URL + "/99")
+                        .header("Authorization", adminBearerToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(testCategory1)))
                 .andExpect(status().isNotFound());
@@ -124,7 +131,8 @@ public class CategoryControllerIntegrationTest {
     public void testDeleteCategory_Success() throws Exception {
         Mockito.when(categoryService.deleteCategory(1)).thenReturn(true);
 
-        mockMvc.perform(delete(BASE_URL + "/1"))
+        mockMvc.perform(delete(BASE_URL + "/1")
+                        .header("Authorization", adminBearerToken))
                 .andExpect(status().isNoContent());
     }
 
@@ -132,7 +140,8 @@ public class CategoryControllerIntegrationTest {
     public void testDeleteCategory_NotFound() throws Exception {
         Mockito.when(categoryService.deleteCategory(99)).thenReturn(false);
 
-        mockMvc.perform(delete(BASE_URL + "/99"))
+        mockMvc.perform(delete(BASE_URL + "/99")
+                        .header("Authorization", adminBearerToken))
                 .andExpect(status().isNotFound());
     }
 }

@@ -5,3 +5,5 @@ databaseChangeLog:
       file: db/changelog/security-changelog.sql
   - include:
       file: db/changelog/security-tokens-changelog.sql
+  - include:
+      file: db/changelog/init-security-changelog.sql
