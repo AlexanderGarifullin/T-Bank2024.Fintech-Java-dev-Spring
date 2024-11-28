@@ -39,7 +39,8 @@ public class LocationDataLoaderCommand implements DataLoaderCommand {
     private final EventService eventService;
 
     @Autowired
-    public LocationDataLoaderCommand(RestClient restClient, LocationService locationService, EventService eventService) {
+    public LocationDataLoaderCommand(RestClient restClient, LocationService locationService,
+                                     EventService eventService) {
         this.restClient = restClient;
         this.locationService = locationService;
         this.eventService = eventService;
@@ -80,7 +81,7 @@ public class LocationDataLoaderCommand implements DataLoaderCommand {
 
 
 
-    private List<EventsResponse> fetchAllEvents(){
+    private List<EventsResponse> fetchAllEvents() {
         int page = 1;
         List<EventsResponse> eventsResponses = new ArrayList<>();
         while (page <= maxPage) {
@@ -90,6 +91,7 @@ public class LocationDataLoaderCommand implements DataLoaderCommand {
         }
         return eventsResponses;
     }
+
     private EventsResponse fetchEvents(int page) {
         log.info("Get events from page " + page);
         try {

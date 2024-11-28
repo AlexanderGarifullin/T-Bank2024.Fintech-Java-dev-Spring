@@ -7,7 +7,6 @@ import com.fin.spr.models.CrudAction;
 import com.fin.spr.repository.history.CategoryHistory;
 import com.fin.spr.storage.InMemoryStorage;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

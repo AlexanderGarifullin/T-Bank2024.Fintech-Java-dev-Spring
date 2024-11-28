@@ -28,7 +28,8 @@ public class LocationService implements ILocationService {
     private final LocationHistory locationHistory;
 
     @Autowired
-    public LocationService(LocationRepository locationRepository, Subject messagePublisher, LocationHistory locationHistory) {
+    public LocationService(LocationRepository locationRepository, Subject messagePublisher,
+                           LocationHistory locationHistory) {
         this.locationRepository = locationRepository;
         this.messagePublisher = messagePublisher;
         this.locationHistory = locationHistory;
@@ -52,7 +53,7 @@ public class LocationService implements ILocationService {
     }
 
     @Override
-    public Location getLocationById(Long id){
+    public Location getLocationById(Long id) {
         return locationRepository.findById(id).orElseThrow(() ->
                 new LocationNotFoundException(id));
     }
@@ -80,7 +81,7 @@ public class LocationService implements ILocationService {
     }
 
     @Override
-    public void deleteLocation(Long id) throws LocationNotFoundException{
+    public void deleteLocation(Long id) throws LocationNotFoundException {
         if (locationRepository.existsById(id)) {
             var location = getLocationById(id);
             locationRepository.deleteById(id);

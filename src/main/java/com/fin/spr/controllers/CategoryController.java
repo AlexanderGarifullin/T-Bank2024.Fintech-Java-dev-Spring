@@ -25,6 +25,8 @@ public class CategoryController implements ICategoryController {
 
     private final ICategoryService categoryService;
 
+    private static final int SUCCESS_CREATED = 201;
+    private static final int CONFLICT = 409;
     /**
      * REST controller responsible for managing categories in the application.
      *
@@ -35,6 +37,7 @@ public class CategoryController implements ICategoryController {
      *
      * @param categoryService the service responsible for category-related operations.
      */
+
     @Autowired
     public CategoryController(ICategoryService categoryService) {
         this.categoryService = categoryService;
@@ -80,9 +83,9 @@ public class CategoryController implements ICategoryController {
     public ResponseEntity<Category> createCategory(@RequestBody Category category) {
         try {
             categoryService.createCategory(category);
-            return ResponseEntity.status(201).body(category);
+            return ResponseEntity.status(SUCCESS_CREATED).body(category);
         } catch (EntityAlreadyExistsException e) {
-            return ResponseEntity.status(409).body(null);
+            return ResponseEntity.status(CONFLICT).body(null);
         }
     }
 

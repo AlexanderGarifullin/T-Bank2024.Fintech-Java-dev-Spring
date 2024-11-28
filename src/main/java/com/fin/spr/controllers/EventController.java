@@ -29,7 +29,7 @@ public class EventController {
     }
 
     @GetMapping
-    public List<Event> getAllEvents(){
+    public List<Event> getAllEvents() {
         return eventService.getAllEvents();
     }
 
@@ -45,10 +45,11 @@ public class EventController {
     }
 
     @PostMapping
-    public ResponseEntity<Event> createEvent(@Valid @RequestBody EventPayload event){
+    public ResponseEntity<Event> createEvent(@Valid @RequestBody EventPayload event) {
         try {
             return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(eventService.createEvent(event.name(), event.startDate(), event.price(), event.free(), event.locationId()));
+                    .body(eventService.createEvent(event.name(), event.startDate(), event.price(), event.free(),
+                            event.locationId()));
         } catch (LocationNotFoundException ex) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .contentType(MediaType.APPLICATION_PROBLEM_JSON)
@@ -58,9 +59,10 @@ public class EventController {
 
     @PutMapping("/{id}")
     public ResponseEntity<Event> updateEvent(@PathVariable Long id,
-                      @Valid @RequestBody EventPayload event){
+                      @Valid @RequestBody EventPayload event) {
         try {
-            return  ResponseEntity.ok(eventService.updateEvent(id, event.name(), event.startDate(), event.price(), event.free(), event.locationId()));
+            return  ResponseEntity.ok(eventService.updateEvent(id, event.name(), event.startDate(), event.price(),
+                    event.free(), event.locationId()));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .contentType(MediaType.APPLICATION_PROBLEM_JSON)
@@ -69,7 +71,7 @@ public class EventController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteEvent(@PathVariable Long id){
+    public ResponseEntity<Void> deleteEvent(@PathVariable Long id) {
         try {
             eventService.deleteEvent(id);
             return ResponseEntity.noContent().build();

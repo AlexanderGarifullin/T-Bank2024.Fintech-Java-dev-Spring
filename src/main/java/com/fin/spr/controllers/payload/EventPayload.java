@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotNull;
 
 import java.time.Instant;
 
-public record EventPayload  (
+public record EventPayload(
 
         @NotBlank(message = "{event.request.name.is_blank}")
         String name,
