@@ -1,8 +1,8 @@
 name: CI
 
 on:
-  push:
   pull_request:
+  push:
 
 permissions:
   contents: read
@@ -48,8 +48,11 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
+      - name: Run tests
+        run: ./gradlew test
+
       - name: Run tests with coverage
-        run: ./gradlew clean test jacocoTestReport
+        run: ./gradlew jacocoTestReport
 
       - name: Jacoco Report to PR
         id: jacoco
