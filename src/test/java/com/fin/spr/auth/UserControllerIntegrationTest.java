@@ -47,10 +47,10 @@ class UserControllerIntegrationTest extends BaseIntegrationTest {
         assertAll(
                 () -> assertThat(jwtResponse.token()).isNotEmpty(),
 
-                () -> assertThat(token.isPresent()).isTrue(),
+                () -> assertThat(token).isPresent(),
                 () -> assertThat(token.get().isRevoked()).isFalse(),
 
-                () -> assertThat(user.isPresent()).isTrue()
+                () -> assertThat(user).isPresent()
         );
 
         deleteUserFromDb(user.get());
@@ -92,8 +92,8 @@ class UserControllerIntegrationTest extends BaseIntegrationTest {
                 () -> assertThat(jwtResponse.token()).isNotNull(),
                 () -> assertThat(jwtFromLogin.token()).isNotEqualTo(jwtResponse.token()),
 
-                () -> assertThat(oldToken.isPresent()).isTrue(),
-                () -> assertThat(newToken.isPresent()).isTrue(),
+                () -> assertThat(oldToken).isPresent(),
+                () -> assertThat(newToken).isPresent(),
 
                 () -> assertThat(oldToken.get().isRevoked()).isTrue(),
                 () -> assertThat(newToken.get().isRevoked()).isFalse(),
@@ -124,7 +124,7 @@ class UserControllerIntegrationTest extends BaseIntegrationTest {
         var oldToken = tokenRepository.findByToken(jwtResponse.token());
 
         assertAll(
-                () -> assertThat(oldToken.isPresent()).isTrue(),
+                () -> assertThat(oldToken).isPresent(),
                 () -> assertThat(oldToken.get().isRevoked()).isTrue()
         );
 
@@ -160,8 +160,8 @@ class UserControllerIntegrationTest extends BaseIntegrationTest {
         var newUser = userRepository.findByLogin("register-login");
 
         assertAll(
-                () -> assertThat(oldUser.isPresent()).isTrue(),
-                () -> assertThat(newUser.isPresent()).isTrue(),
+                () -> assertThat(oldUser).isPresent(),
+                () -> assertThat(newUser).isPresent(),
 
                 () -> assertThat(oldUser.get()).isNotEqualTo(newUser.get()),
                 () -> assertThat(oldUser.get().getHashedPassword()).isNotEqualTo(newUser.get().getHashedPassword())
@@ -191,15 +191,15 @@ class UserControllerIntegrationTest extends BaseIntegrationTest {
         assertAll(
                 () -> assertThat(jwtFromLogin.token()).isNotEmpty(),
 
-                () ->  assertThat(loginToken.isPresent()).isTrue(),
-                () ->  assertThat(oldToken.isPresent()).isTrue(),
+                () ->  assertThat(loginToken).isPresent(),
+                () ->  assertThat(oldToken).isPresent(),
 
                 () ->  assertThat(loginToken.get().isRevoked()).isFalse(),
                 () ->  assertThat(oldToken.get().isRevoked()).isTrue(),
 
                 () -> assertThat(loginToken.get()).isNotEqualTo(oldToken),
 
-                () -> assertThat(loginUser.isPresent()).isTrue(),
+                () -> assertThat(loginUser).isPresent(),
                 () -> assertThat(loginUser.get()).isEqualTo(newUser.get())
         );
 
