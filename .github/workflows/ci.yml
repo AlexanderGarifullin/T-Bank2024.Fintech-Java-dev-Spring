@@ -60,6 +60,7 @@ jobs:
           min-coverage-overall: 10
           min-coverage-changed-files: 20
           title: Code Coverage
+          update-comment: true
 
   lint:
     runs-on: ubuntu-latest
