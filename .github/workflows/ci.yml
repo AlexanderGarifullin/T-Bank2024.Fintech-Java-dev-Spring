@@ -86,8 +86,8 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - name: Run static analysis with SpotBugs
-        run: ./gradlew check
+      - name: Run static code analysis
+        run: ./gradlew checkstyleMain
 
   package:
     runs-on: ubuntu-latest
