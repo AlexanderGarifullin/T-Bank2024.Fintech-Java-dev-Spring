@@ -92,7 +92,7 @@ jobs:
   package:
     runs-on: ubuntu-latest
     name: Package
-    needs: test
+    needs: [test, lint]
 
     steps:
       - name: Checkout code
