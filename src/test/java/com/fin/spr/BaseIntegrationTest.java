@@ -1,16 +1,24 @@
 package com.fin.spr;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fin.spr.controllers.payload.security.AuthenticationPayload;
+import com.fin.spr.services.security.AuthenticationService;
 import liquibase.Contexts;
 import liquibase.Liquibase;
 import liquibase.database.Database;
+import liquibase.database.DatabaseFactory;
 import liquibase.database.jvm.JdbcConnection;
+import liquibase.exception.DatabaseException;
 import liquibase.exception.LiquibaseException;
 import liquibase.resource.ClassLoaderResourceAccessor;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.testcontainers.containers.PostgreSQLContainer;
 
@@ -23,7 +31,10 @@ import java.sql.SQLException;
 @ActiveProfiles("test")
 public abstract class BaseIntegrationTest {
 
-    private PostgreSQLContainer<?> postgreSQLContainer;
+    private static final PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:17")
+            .withUsername("postgres")
+            .withPassword("123")
+            .withDatabaseName("testdb");
 
     @Autowired
     protected MockMvc mockMvc;
@@ -31,40 +42,53 @@ public abstract class BaseIntegrationTest {
     @Autowired
     protected ObjectMapper objectMapper;
 
-    void setUp() {
-        postgreSQLContainer = new PostgreSQLContainer<>("postgres:17")
-                .withDatabaseName("testdb")
-                .withUsername("test")
-                .withPassword("test");
-        postgreSQLContainer.start();
+    @Autowired
+    protected AuthenticationService authenticationService;
 
+    protected static String userBearerToken;
+    protected static String adminBearerToken;
 
-        System.setProperty("spring.datasource.url", postgreSQLContainer.getJdbcUrl());
-        System.setProperty("spring.datasource.username", postgreSQLContainer.getUsername());
-        System.setProperty("spring.datasource.password", postgreSQLContainer.getPassword());
+    protected static final AuthenticationPayload userRequest = new AuthenticationPayload(
+            "user",
+            "password",
+            false
+    );
 
-        try (Connection connection = DriverManager.getConnection(
-                postgreSQLContainer.getJdbcUrl(),
-                postgreSQLContainer.getUsername(),
-                postgreSQLContainer.getPassword()
-        )) {
-            runLiquibaseMigrations(connection);
-        } catch (LiquibaseException | SQLException e) {
-            throw new RuntimeException(e);
+    protected static final AuthenticationPayload adminRequest = new AuthenticationPayload(
+            "admin",
+            "password",
+            false
+    );
+
+    private static void runLiquibaseMigrations() throws Exception {
+        Connection connection = DriverManager.getConnection(
+                postgres.getJdbcUrl(), postgres.getUsername(), postgres.getPassword());
+
+        Database database = DatabaseFactory.getInstance()
+                .findCorrectDatabaseImplementation(new JdbcConnection(connection));
+
+        String changeLogFile = System.getProperty("spring.liquibase.change-log", "db/changelog/db.changelog-test.yaml");
+
+        try (Liquibase liquibase = new Liquibase(changeLogFile, new ClassLoaderResourceAccessor(), database)) {
+            liquibase.update(new Contexts());
         }
     }
 
+    @DynamicPropertySource
+    static void postgresqlProperties(DynamicPropertyRegistry registry) throws Exception {
+        postgres.start();
+        runLiquibaseMigrations();
+        registry.add("spring.datasource.url", postgres::getJdbcUrl);
+    }
 
-    private void runLiquibaseMigrations(Connection connection) throws LiquibaseException {
-        // Настраиваем Liquibase для выполнения миграций
-        Database database = new liquibase.database.core.PostgresDatabase();
-        database.setConnection(new JdbcConnection(connection));
+    @BeforeEach
+    public void getToken() throws Exception {
+        if (userBearerToken == null) {
+            userBearerToken = "Bearer %s".formatted(authenticationService.login(userRequest).token());
+        }
 
-        // Указываем основной файл миграций
-        try (Liquibase liquibase = new Liquibase("db/changelog/db.changelog-master.yaml",
-                new ClassLoaderResourceAccessor(),
-                database)) {
-            liquibase.update(new Contexts());
+        if (adminBearerToken == null) {
+            adminBearerToken = "Bearer %s".formatted(authenticationService.login(adminRequest).token());
         }
     }
 }

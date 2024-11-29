@@ -49,9 +49,11 @@ public class KudaGoSerivce  {
     }
 
     /**
-     * Initiates the periodic data loading process, scheduling data updates based on the specified {@code scheduleDuration}.
+     * Initiates the periodic data loading process, scheduling data updates based
+     * on the specified {@code scheduleDuration}.
      * <p>
-     * This method runs at fixed intervals defined by {@code scheduleDuration} and triggers the parallel loading of categories
+     * This method runs at fixed intervals defined by {@code scheduleDuration} and
+     * triggers the parallel loading of categories
      * and locations using the {@link #parallelInitData()} method.
      * </p>
      */

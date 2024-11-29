@@ -8,6 +8,7 @@ import com.fin.spr.models.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,6 +25,8 @@ public class CategoryController implements ICategoryController {
 
     private final ICategoryService categoryService;
 
+    private static final int SUCCESS_CREATED = 201;
+    private static final int CONFLICT = 409;
     /**
      * REST controller responsible for managing categories in the application.
      *
@@ -34,6 +37,7 @@ public class CategoryController implements ICategoryController {
      *
      * @param categoryService the service responsible for category-related operations.
      */
+
     @Autowired
     public CategoryController(ICategoryService categoryService) {
         this.categoryService = categoryService;
@@ -74,13 +78,14 @@ public class CategoryController implements ICategoryController {
      *         Returns HTTP 409 if the category already exists.
      */
     @PostMapping
+    @PreAuthorize("hasAuthority('ADMIN')")
     @Override
     public ResponseEntity<Category> createCategory(@RequestBody Category category) {
         try {
             categoryService.createCategory(category);
-            return ResponseEntity.status(201).body(category);
+            return ResponseEntity.status(SUCCESS_CREATED).body(category);
         } catch (EntityAlreadyExistsException e) {
-            return ResponseEntity.status(409).body(null);
+            return ResponseEntity.status(CONFLICT).body(null);
         }
     }
 
@@ -92,6 +97,7 @@ public class CategoryController implements ICategoryController {
      * @return a ResponseEntity containing the updated category or an HTTP 404 status code if not found.
      */
     @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('ADMIN')")
     @Override
     public ResponseEntity<Category> updateCategory(@PathVariable Integer id, @RequestBody Category category) {
         boolean updated = categoryService.updateCategory(id, category);
@@ -106,6 +112,7 @@ public class CategoryController implements ICategoryController {
      *         Returns HTTP 204 if the category was deleted, or HTTP 404 if not found.
      */
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('ADMIN')")
     @Override
     public ResponseEntity<Void> deleteCategory(@PathVariable Integer id) {
         boolean deleted = categoryService.deleteCategory(id);

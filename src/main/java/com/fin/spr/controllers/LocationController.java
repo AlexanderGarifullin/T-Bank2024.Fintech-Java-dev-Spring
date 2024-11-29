@@ -17,7 +17,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/locations")
 @LogExecutionTime
-public class LocationController{
+public class LocationController {
 
     private final ILocationService locationService;
 

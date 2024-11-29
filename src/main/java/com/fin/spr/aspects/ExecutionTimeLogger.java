@@ -41,7 +41,8 @@ public class ExecutionTimeLogger {
 
     private static final Logger logger = LoggerFactory.getLogger(ExecutionTimeLogger.class);
 
-    @Around("@annotation(com.fin.spr.annotations.LogExecutionTime) || @within(com.fin.spr.annotations.LogExecutionTime)")
+    @Around("@annotation(com.fin.spr.annotations.LogExecutionTime) "
+            + "|| @within(com.fin.spr.annotations.LogExecutionTime)")
     public Object logExecutionTime(ProceedingJoinPoint joinPoint) {
         long start = System.currentTimeMillis();
         Object proceed = null;

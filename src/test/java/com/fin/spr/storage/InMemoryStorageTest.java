@@ -3,10 +3,11 @@ package com.fin.spr.storage;
 import com.fin.spr.exceptions.EntityAlreadyExistsException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.test.context.ActiveProfiles;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-
+@ActiveProfiles("test")
 class InMemoryStorageTest {
 
     private InMemoryStorage<String, Integer> storage;
