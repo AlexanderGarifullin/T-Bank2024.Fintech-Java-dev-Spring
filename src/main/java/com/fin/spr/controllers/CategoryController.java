@@ -5,7 +5,10 @@ import com.fin.spr.exceptions.EntityAlreadyExistsException;
 import com.fin.spr.interfaces.controller.ICategoryController;
 import com.fin.spr.interfaces.service.ICategoryService;
 import com.fin.spr.models.Category;
+import com.fin.spr.services.UtilService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,28 +25,16 @@ import java.util.Optional;
 @Slf4j
 @RestController
 @RequestMapping("/api/v1/places/categories")
+@RequiredArgsConstructor
 @LogExecutionTime
 public class CategoryController implements ICategoryController {
 
     private final ICategoryService categoryService;
+    private final UtilService utilService;
 
     private static final int SUCCESS_CREATED = 201;
     private static final int CONFLICT = 409;
-    /**
-     * REST controller responsible for managing categories in the application.
-     *
-     * <p>This controller provides endpoints for performing CRUD operations
-     * on {@link Category} entities. The business logic is handled by
-     * an {@link ICategoryService} implementation, which is injected via
-     * constructor dependency injection.</p>
-     *
-     * @param categoryService the service responsible for category-related operations.
-     */
 
-    @Autowired
-    public CategoryController(ICategoryService categoryService) {
-        this.categoryService = categoryService;
-    }
 
     /**
      * Retrieves all categories.
@@ -55,9 +46,11 @@ public class CategoryController implements ICategoryController {
     @ResponseStatus(HttpStatus.OK)
     public List<Category> getAllCategories() {
         log.info("Fetching all categories");
-        List<Category> categories = categoryService.getAllCategories();
-        log.debug("Categories fetched: {}", categories);
-        return categories;
+        try (var ignored = MDC.putCloseable("UUID", utilService.generateSomeId().toString())) {
+            List<Category> categories = categoryService.getAllCategories();
+            log.debug("Categories fetched: {}", categories);
+            return categories;
+        }
     }
 
     /**
