@@ -36,6 +36,7 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
 
 	// db
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
@@ -61,7 +62,7 @@ dependencies {
 
 	// logs and metrics
 	implementation 'net.logstash.logback:logstash-logback-encoder:8.0'
-
+	implementation 'io.micrometer:micrometer-registry-prometheus:1.14.1'
 
 	// test
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'

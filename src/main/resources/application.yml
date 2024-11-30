@@ -9,6 +9,16 @@ spring:
   profiles:
     active: prod
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: [ "prometheus", "health" ]
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+
 kudago:
   api:
     base:
