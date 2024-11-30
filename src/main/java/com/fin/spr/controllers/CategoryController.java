@@ -5,6 +5,7 @@ import com.fin.spr.exceptions.EntityAlreadyExistsException;
 import com.fin.spr.interfaces.controller.ICategoryController;
 import com.fin.spr.interfaces.service.ICategoryService;
 import com.fin.spr.models.Category;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +19,7 @@ import java.util.Optional;
  * REST controller for managing categories in the application.
  * This controller provides endpoints to perform CRUD operations on categories.
  */
+@Slf4j
 @RestController
 @RequestMapping("/api/v1/places/categories")
 @LogExecutionTime
@@ -52,7 +54,9 @@ public class CategoryController implements ICategoryController {
     @Override
     @ResponseStatus(HttpStatus.OK)
     public List<Category> getAllCategories() {
+        log.info("Fetching all categories");
         List<Category> categories = categoryService.getAllCategories();
+        log.debug("Categories fetched: {}", categories);
         return categories;
     }
 

@@ -4,11 +4,12 @@ services:
     image: elasticsearch:8.16.1
     container_name: elasticsearch
     environment:
+      - bootstrap.memory_lock=true
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
       - discovery.type=single-node
       - xpack.security.enabled=false
     ports:
       - "9200:9200"
-      - "9300:9300"
     networks:
       - elk_network
 
@@ -27,13 +28,18 @@ services:
   logstash:
     image: logstash:8.16.1
     container_name: logstash
+    environment:
+      LS_JAVA_OPTS: "-Xmx256m -Xms256m"
+
     ports:
-      - "5044:5044"
       - "9600:9600"
     networks:
       - elk_network
     volumes:
-      - ./logstash/pipeline:/usr/share/logstash/pipeline
+      - ../logback:/usr/share/logstash/data
+      - ../logging/logstash/config/pipeline/logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+      - ../logging/logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml
+      - ../logs:/usr/share/logstash/logs
 
 networks:
   elk_network:

@@ -40,6 +40,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(request -> request
                        .requestMatchers("/api/v1/auth/register", "/api/v1/auth/login").permitAll()
                         .requestMatchers("/swagger-ui/**", "/swagger-resources/*", "/v3/api-docs/**").permitAll()
+                        .requestMatchers("/api/v1/places/categories").permitAll()
                         .requestMatchers("/endpoint", "/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated())
                 .sessionManagement(sessionManagementConfigurer ->
