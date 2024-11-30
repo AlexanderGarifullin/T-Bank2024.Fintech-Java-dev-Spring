@@ -38,10 +38,14 @@ public class SecurityConfig {
                     return corsConfiguration;
                 }))
                 .authorizeHttpRequests(request -> request
-                       .requestMatchers("/api/v1/auth/register", "/api/v1/auth/login").permitAll()
-                        .requestMatchers("/swagger-ui/**", "/swagger-resources/*", "/v3/api-docs/**").permitAll()
-                        .requestMatchers("/api/v1/places/categories").permitAll()
-                        .requestMatchers("/actuator/**").permitAll()
+                       .requestMatchers("/api/v1/auth/register",
+                               "/api/v1/auth/login",
+                               "/swagger-ui/**",
+                               "/swagger-resources/*",
+                               "/v3/api-docs/**",
+                               "/api/v1/places/categories",
+                               "/actuator/**",
+                               "/custom-metric").permitAll()
                         .requestMatchers("/endpoint", "/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated())
                 .sessionManagement(sessionManagementConfigurer ->

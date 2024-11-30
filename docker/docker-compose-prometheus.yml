@@ -1,0 +1,19 @@
+services:
+  prometheus:
+    image: prom/prometheus:v2.55.1
+    ports:
+      - '9090:9090'
+    volumes:
+      - ../metrics/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus:/prometheus
+    networks:
+      - elk_network
+
+volumes:
+  prometheus:
+    name: prometheus
+    driver: local
+
+networks:
+  elk_network:
+    driver: bridge
