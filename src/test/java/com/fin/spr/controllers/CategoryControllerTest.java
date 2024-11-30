@@ -3,6 +3,7 @@ package com.fin.spr.controllers;
 import com.fin.spr.exceptions.EntityAlreadyExistsException;
 import com.fin.spr.interfaces.service.ICategoryService;
 import com.fin.spr.models.Category;
+import com.fin.spr.services.UtilService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -13,6 +14,7 @@ import org.springframework.test.context.ActiveProfiles;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -25,6 +27,9 @@ class CategoryControllerTest {
     @Mock
     private ICategoryService categoryService;
 
+    @Mock
+    UtilService utilService;
+
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
@@ -36,6 +41,7 @@ class CategoryControllerTest {
         Category category1 = new Category(1, "slug 1", "name ");
         Category category2 = new Category(2, "slug 2", "name ");
 
+        when(utilService.generateSomeId()).thenReturn(UUID.randomUUID());
         when(categoryService.getAllCategories()).thenReturn(List.of(category1, category2));
 
         List<Category> response = categoryController.getAllCategories();
