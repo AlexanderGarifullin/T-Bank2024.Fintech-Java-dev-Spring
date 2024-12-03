@@ -36,6 +36,7 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
 
 	// db
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
@@ -59,8 +60,11 @@ dependencies {
 	implementation 'org.slf4j:slf4j-api:2.0.0'
 	implementation 'ch.qos.logback:logback-classic:1.4.12'
 
-	// test
+	// logs and metrics
+	implementation 'net.logstash.logback:logstash-logback-encoder:8.0'
+	implementation("io.micrometer:micrometer-registry-prometheus")
 
+	// test
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.testcontainers:junit-jupiter:1.20.1'
 	testImplementation 'org.wiremock:wiremock-standalone:3.9.1'

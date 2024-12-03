@@ -6,6 +6,7 @@ import com.fin.spr.models.Category;
 import com.fin.spr.models.CrudAction;
 import com.fin.spr.repository.history.CategoryHistory;
 import com.fin.spr.storage.InMemoryStorage;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +18,7 @@ import java.util.Optional;
  * for managing categories. It utilizes an in-memory storage solution to perform CRUD operations
  * on {@link Category} entities.
  */
+@Slf4j
 @Service
 public class CategoryService implements ICategoryService {
 
@@ -42,6 +44,7 @@ public class CategoryService implements ICategoryService {
      */
     @Override
     public List<Category> getAllCategories() {
+        log.info("Start fetching categories in service");
         return categoryStorage.getAll();
     }
 
